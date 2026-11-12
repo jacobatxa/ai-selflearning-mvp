@@ -2,704 +2,730 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>彼灯·AI自学系统 学生端（可交互原型）</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>AI自学教练 · 学生端</title>
 <style>
 :root{
-  --bg:#F7F3EA; --panel:#FFFCF4; --ink:#29241B; --sub:#6B6353;
-  --teacher:#9A6B3F; --stu:#0E766E; --ai:#55636F; --red:#B3402E;
-  --line:#E4DCC8; --soft:#F1EBDB; --ok:#5F8C34; --warn:#C98A2D;
+  --bg:#F7F3EA; --ink:#29241B; --ink2:#6B6152;
+  --teal:#0E766E; --teal-d:#0A5C56;
+  --ai:#55636F; --line:#E4DCCB;
+  --red:#B3402E; --warn:#8A4A2B;
   --c1:#B3402E; --c2:#C98A2D; --c3:#7A5C99; --c4:#C2A02F; --c5:#8A857B;
 }
-*{box-sizing:border-box; margin:0; padding:0;}
-html,body{background:var(--bg); color:var(--ink);
+*{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html,body{ margin:0; padding:0; background:var(--bg); color:var(--ink);
   font-family:"Noto Sans CJK SC","PingFang SC","Microsoft YaHei",sans-serif;
-  font-size:16px; line-height:1.65;}
-button{font-family:inherit; cursor:pointer;}
-a{color:var(--stu);}
+  font-size:16px; line-height:1.6; }
+.shell{ max-width:560px; margin:0 auto; min-height:100vh; display:flex; flex-direction:column; }
+main{ flex:1; padding:28px 22px 120px; }
+h1{ font-size:26px; line-height:1.35; margin:14px 0 8px; font-weight:700; }
+h2{ font-size:20px; margin:10px 0 8px; }
+.lead{ color:var(--ink2); font-size:16px; margin:0 0 26px; }
+.big{ font-size:18px; line-height:1.7; }
+.btn{ display:block; width:100%; border:0; border-radius:14px; background:var(--teal);
+  color:#fff; font-size:18px; font-weight:600; padding:16px 20px; cursor:pointer;
+  font-family:inherit; transition:background .15s; text-align:center; }
+.btn:hover{ background:var(--teal-d); }
+.btn:active{ transform:translateY(1px); }
+.btn.ghost{ background:transparent; color:var(--ink2); border:1.5px solid var(--line); font-weight:500; }
+.btn.small{ display:inline-block; width:auto; padding:10px 18px; font-size:16px; }
+.btn:disabled{ background:#B9B3A6; cursor:not-allowed; }
+.center{ text-align:center; }
+.hidden{ display:none !important; }
 
-/* ===== 顶栏 ===== */
-header{display:flex; align-items:center; gap:14px; padding:14px 28px;
-  background:var(--panel); border-bottom:2px solid var(--line); position:sticky; top:0; z-index:40;}
-header .brand{font-weight:800; font-size:20px; letter-spacing:.5px;}
-header .brand small{color:var(--teacher); font-weight:600; font-size:13px; margin-left:8px;}
-header .who{margin-left:auto; font-size:14px; color:var(--sub);}
-header .who b{color:var(--ink);}
-header .nav{display:flex; gap:8px;}
-header .nav button{border:1px solid var(--line); background:var(--soft); color:var(--ink);
-  padding:7px 16px; border-radius:18px; font-size:14px;}
-header .nav button:hover{border-color:var(--teacher);}
-header .nav button.cur{background:var(--stu); color:#fff; border-color:var(--stu);}
+/* 屏 0 欢迎 */
+.welcome .mark{ width:74px; height:74px; border-radius:20px; background:var(--teal);
+  color:#fff; display:flex; align-items:center; justify-content:center;
+  font-size:34px; font-weight:800; margin:38px auto 6px; }
+.welcome .word{ text-align:center; color:var(--ink2); font-size:15px; margin:40px 0 24px; }
 
-main{max-width:1180px; margin:0 auto; padding:26px 22px 80px;}
+/* 三问 */
+.qrow{ margin:0 0 22px; }
+.qrow .ql{ font-weight:600; margin-bottom:8px; }
+.qrow .qhint{ color:var(--ink2); font-size:13px; margin-top:4px; }
+.chips{ display:flex; gap:8px; flex-wrap:wrap; }
+.chip{ border:1.5px solid var(--line); border-radius:999px; padding:8px 16px;
+  background:#fff; cursor:pointer; font-size:15px; color:var(--ink); }
+.chip.on{ border-color:var(--teal); background:var(--teal); color:#fff; font-weight:600; }
+.chip2{ border:1.5px solid var(--line); border-radius:999px; padding:7px 14px;
+  background:#fff; cursor:pointer; font-size:14px; color:var(--ink); }
+.chip2.on{ border-color:var(--teal); background:rgba(14,118,110,.08); color:var(--teal); font-weight:600; }
+input[type=text], input[type=number], textarea{
+  width:100%; border:1.5px solid var(--line); border-radius:12px; background:#fff;
+  padding:12px 14px; font-size:16px; font-family:inherit; color:var(--ink); }
+input:focus, textarea:focus{ outline:none; border-color:var(--teal); }
+textarea{ resize:vertical; min-height:88px; }
 
-/* ===== 通用卡 ===== */
-.card{background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:20px 22px; margin-bottom:18px;}
-.card h2{font-size:17px; margin-bottom:4px;}
-.card .tag{display:inline-block; font-size:12px; padding:2px 10px; border-radius:10px; margin-right:6px; background:var(--soft); color:var(--sub);}
-.kicker{font-size:13px; color:var(--teacher); font-weight:700; letter-spacing:1px; margin-bottom:2px;}
-.hint{font-size:13px; color:var(--sub);}
+/* 传题 */
+.upload-box{ border:2px dashed #CBBFA6; border-radius:16px; background:#FBF8F1;
+  padding:44px 20px; text-align:center; margin:10px 0 26px; }
+.upload-box .cam{ font-size:40px; color:var(--teal); }
+.upload-box p{ color:var(--ink2); margin:10px 0 0; font-size:15px; }
+.scanning{ color:var(--ink2); text-align:center; font-size:15px; padding:18px 0; }
+.scanning .dots::after{ content:"…"; animation:blink 1s steps(2) infinite; }
+@keyframes blink{ 50%{ opacity:.25; } }
 
-/* ===== 工作台网格 ===== */
-.grid{display:grid; grid-template-columns:repeat(12,1fr); gap:18px;}
-@media (max-width:900px){ .grid{grid-template-columns:1fr;} .grid > *{grid-column:auto !important;} }
+/* 题面确认 */
+.stemcard{ background:#fff; border:1.5px solid var(--line); border-radius:16px;
+  padding:16px 18px; margin:8px 0 16px; font-size:15px; }
+.stemcard .tag{ display:inline-block; background:rgba(14,118,110,.1); color:var(--teal);
+  border-radius:6px; padding:2px 10px; font-size:13px; font-weight:600; margin-bottom:8px; }
+.qpick{ border:1.5px solid var(--line); border-radius:12px; background:#fff; padding:12px 14px;
+  margin-bottom:10px; cursor:pointer; font-size:14px; }
+.qpick.on{ border-color:var(--teal); background:rgba(14,118,110,.05); }
+.qpick .qt{ font-weight:600; }
 
-/* 仪式清单 */
-.ritual{grid-column:span 5;}
-.ritual li{list-style:none; display:flex; gap:10px; align-items:flex-start; padding:9px 0; border-bottom:1px dashed var(--line); font-size:15px;}
-.ritual li:last-child{border-bottom:none;}
-.ritual li .box{width:20px; height:20px; border:2px solid var(--teacher); border-radius:6px; flex:none; margin-top:2px; background:#fff;}
-.ritual li .box.on{background:var(--teacher);}
-.ritual li.done .txt{color:var(--sub); text-decoration:line-through;}
-.ritual li .txt b{color:var(--teacher);}
+/* 教练对话 */
+.chatview{ display:flex; flex-direction:column; height:100vh; max-height:100vh; }
+.chathead{ padding:12px 16px 8px; border-bottom:1px solid var(--line); background:var(--bg); }
+.chathead .t1{ font-weight:700; font-size:15px; }
+.chathead .t2{ color:var(--ink2); font-size:12px; }
+.polya{ display:flex; gap:6px; padding:10px 16px 0; background:var(--bg); }
+.polya .step{ flex:1; text-align:center; font-size:12px; color:#A79C87; border-radius:8px 8px 0 0;
+  padding:6px 2px; border:1px solid transparent; border-bottom:0; }
+.polya .step.cur{ color:var(--teal); background:#fff; border-color:var(--line); font-weight:700; }
+.msgs{ flex:1; overflow-y:auto; padding:14px 16px 8px; background:var(--bg); }
+.msg{ max-width:86%; margin-bottom:12px; padding:11px 14px; border-radius:14px;
+  font-size:15px; line-height:1.65; white-space:pre-wrap; word-break:break-word; }
+.msg.coach{ background:#fff; border:1px solid var(--line); border-top-left-radius:4px; margin-right:auto; }
+.msg.coach .lbl{ display:block; font-size:12px; color:var(--teal); font-weight:700; margin-bottom:3px; }
+.msg.sys{ background:rgba(179,64,46,.06); border:1px solid rgba(179,64,46,.25); color:var(--red);
+  margin:0 auto 12px; font-size:14px; text-align:center; border-radius:10px; }
+.msg.stu{ background:var(--teal); color:#fff; border-top-right-radius:4px; margin-left:auto; }
+.expect{ padding:0 16px 8px; font-size:12.5px; color:var(--ink2); background:var(--bg); }
+.inputbar{ display:flex; gap:8px; padding:10px 12px calc(12px + env(safe-area-inset-bottom));
+  border-top:1px solid var(--line); background:var(--bg); align-items:flex-end; }
+.inputbar input{ flex:1; border-radius:999px; padding:11px 16px; font-size:16px; }
+.mic{ flex:0 0 46px; height:46px; border-radius:50%; border:0; background:#fff;
+  border:1.5px solid var(--line); cursor:pointer; font-size:20px; display:flex;
+  align-items:center; justify-content:center; }
+.mic.rec{ background:var(--red); border-color:var(--red); color:#fff; animation:pulse 1.2s infinite; }
+@keyframes pulse{ 50%{ transform:scale(1.08); } }
+.sendb{ flex:0 0 auto; border:0; border-radius:999px; background:var(--teal); color:#fff;
+  padding:0 22px; height:46px; font-size:16px; font-weight:600; cursor:pointer; font-family:inherit; }
 
-/* 两库统计 */
-.libs{grid-column:span 4;}
-.libs .row{display:flex; justify-content:space-between; padding:8px 0; font-size:15px; border-bottom:1px dashed var(--line);}
-.libs .row:last-child{border-bottom:none;}
-.libs .row b{font-size:22px;}
-.libs .plus{color:var(--ok); font-size:13px;}
+/* 错因五选 */
+.causebtn{ display:block; width:100%; text-align:left; border:1.5px solid var(--line);
+  background:#fff; border-radius:14px; padding:14px 16px; margin-bottom:10px;
+  cursor:pointer; font-size:16px; font-weight:600; }
+.causebtn small{ display:block; font-weight:400; color:var(--ink2); font-size:13px; margin-top:2px; }
+.causebtn.on{ color:#fff; }
+.causebtn.on small{ color:rgba(255,255,255,.85); }
 
-/* 红线卡 */
-.redlines{grid-column:span 3;}
-.redlines li{list-style:none; font-size:14px; padding:7px 0; color:var(--red);}
-.redlines li::before{content:""; display:inline-block; width:8px; height:8px; background:var(--red); border-radius:50%; margin-right:8px;}
-.redlines .t{font-size:12.5px; color:var(--sub); margin-top:4px;}
+/* 记一句话 */
+.fld{ margin-bottom:16px; }
+.fld label{ font-weight:600; display:block; margin-bottom:6px; font-size:15px; }
+.fld .fhint{ color:var(--ink2); font-size:12.5px; margin-top:4px; }
 
-/* 错题卡列表 */
-.issues{grid-column:span 12;}
-.issues .list{display:grid; grid-template-columns:repeat(4,1fr); gap:14px;}
-@media (max-width:1100px){.issues .list{grid-template-columns:repeat(2,1fr);}}
-@media (max-width:640px){.issues .list{grid-template-columns:1fr;}}
-.issue{background:var(--soft); border:1px solid var(--line); border-radius:12px; padding:16px; display:flex; flex-direction:column; gap:8px;}
-.issue .code{font-weight:800; font-size:15px;}
-.issue .name{font-size:14px; color:var(--sub); min-height:44px;}
-.issue .meta{font-size:12.5px; color:var(--sub);}
-.issue .go{background:var(--stu); color:#fff; border:none; border-radius:9px; padding:10px 0; font-size:14.5px; font-weight:700; margin-top:auto;}
-.issue.done-state .go{background:var(--ok);}
-.issue.locked{opacity:.55;}
+/* 收工 / 今晚 */
+.done .big{ text-align:center; }
+.done .seal{ font-size:52px; text-align:center; margin:30px 0 6px; }
+.nstep{ background:#fff; border:1.5px solid var(--line); border-radius:14px; padding:14px 16px;
+  margin-bottom:12px; display:flex; gap:12px; align-items:center; }
+.nstep .num{ flex:0 0 30px; height:30px; border-radius:50%; background:var(--bg); border:1.5px solid var(--line);
+  display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px; }
+.nstep.done .num{ background:var(--teal); border-color:var(--teal); color:#fff; }
+.nstep .body{ flex:1; }
+.nstep .bt{ font-weight:600; font-size:15px; }
+.nstep .bs{ color:var(--ink2); font-size:13px; }
+.nstep .go{ flex:0 0 auto; }
 
-/* ===== 对话视图 ===== */
-#chat{display:none;}
-.chatwrap{display:grid; grid-template-columns:340px 1fr; gap:18px;}
-@media (max-width:900px){ .chatwrap{grid-template-columns:1fr;} }
-/* 题目卡 */
-.stem{background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:20px;}
-.stem .qtitle{font-weight:800; margin-bottom:8px; font-size:15.5px;}
-.stem .qbody{font-size:14.5px; color:var(--sub); white-space:pre-wrap;}
-.stem .qnote{margin-top:10px; font-size:12.5px; color:var(--teacher); background:var(--soft); border-radius:8px; padding:8px 10px;}
-/* 波利亚进度 */
-.polya{display:flex; gap:0; margin-bottom:14px;}
-.polya .step{flex:1; text-align:center; font-size:12.5px; color:var(--sub); padding:7px 4px; background:var(--soft); border:1px solid var(--line); border-right:none;}
-.polya .step:first-child{border-radius:8px 0 0 8px;}
-.polya .step:last-child{border-radius:0 8px 8px 0; border-right:1px solid var(--line);}
-.polya .step.cur{background:var(--stu); color:#fff; font-weight:700;}
-.polya .step.done{background:#DFE8D9; color:#3E5A2A;}
-/* 对话窗 */
-.talk{background:var(--panel); border:1px solid var(--line); border-radius:14px; display:flex; flex-direction:column; height:640px;}
-.talk .head{display:flex; gap:10px; align-items:center; padding:14px 18px; border-bottom:1px solid var(--line);}
-.talk .head .avatar{width:36px; height:36px; border-radius:50%; background:var(--teacher); color:#fff; font-weight:800; display:flex; align-items:center; justify-content:center; font-size:15px;}
-.talk .head .nm{font-weight:700; font-size:15px;}
-.talk .head .role{font-size:12px; color:var(--sub);}
-.talk .head .role em{color:var(--red); font-style:normal; font-weight:700;}
-.msgs{flex:1; overflow-y:auto; padding:18px; display:flex; flex-direction:column; gap:14px; background:var(--bg);}
-.msg{max-width:78%; padding:11px 15px; border-radius:13px; font-size:15px; white-space:pre-wrap;}
-.msg.coach{background:var(--panel); border:1px solid var(--line); align-self:flex-start; border-top-left-radius:3px;}
-.msg.coach .lbl{font-size:11.5px; color:var(--teacher); font-weight:700; margin-bottom:3px;}
-.msg.stu{background:var(--stu); color:#fff; align-self:flex-end; border-top-right-radius:3px;}
-.msg.sys{background:#FBEFEA; border:1px solid #E7C7BC; color:var(--red); align-self:center; font-size:13.5px; max-width:92%; text-align:center; border-radius:9px;}
-.msg.sys b{color:var(--red);}
-/* 输入区 */
-.inputbar{border-top:1px solid var(--line); padding:12px 16px; display:flex; gap:10px; background:var(--panel); border-radius:0 0 14px 14px;}
-.inputbar textarea{flex:1; resize:none; border:1px solid var(--line); border-radius:10px; padding:10px 13px; font-family:inherit; font-size:15px; min-height:52px; background:#fff; color:var(--ink);}
-.inputbar button{background:var(--teacher); color:#fff; border:none; border-radius:10px; padding:0 22px; font-size:15px; font-weight:700;}
-.inputbar button:disabled{background:#C6B79D;}
-.expect{font-size:12.5px; color:var(--sub); padding:0 18px 10px; background:var(--panel);}
-.expect b{color:var(--teacher);}
+/* demo 成熟期 */
+.barchart{ display:flex; align-items:flex-end; gap:10px; height:150px; padding:10px 4px 0; }
+.bar{ flex:1; text-align:center; }
+.bar .col{ background:var(--teal); border-radius:8px 8px 0 0; margin:0 auto; width:70%; opacity:.85; }
+.bar .col.avg{ background:#CBBFA6; height:60px !important; }
+.bar .lbl{ font-size:11px; color:var(--ink2); margin-top:6px; }
 
-/* ===== 复盘视图 ===== */
-#recap{display:none;}
-.recapwrap{max-width:760px; margin:0 auto;}
-.qtitle2{font-size:18px; font-weight:800; margin-bottom:6px;}
-.causes{display:grid; grid-template-columns:repeat(5,1fr); gap:10px; margin:14px 0 20px;}
-@media (max-width:800px){.causes{grid-template-columns:repeat(2,1fr);}}
-.cause{border:2px solid var(--line); border-radius:12px; padding:14px 10px; text-align:center; background:var(--panel); cursor:pointer;}
-.cause .n{font-size:13px; color:var(--sub);}
-.cause .d{font-weight:700; font-size:14.5px; margin-top:3px;}
-.cause .why{font-size:11.5px; color:var(--sub); margin-top:6px; line-height:1.4;}
-.cause.sel{border-color:var(--stu); box-shadow:0 0 0 3px rgba(14,118,110,.15);}
-.cause:hover{border-color:var(--teacher);}
-/* 卡片表单 */
-.cardform{background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:20px 22px;}
-.cardform .frow{margin-bottom:14px;}
-.cardform label{display:block; font-size:13.5px; color:var(--teacher); font-weight:700; margin-bottom:5px;}
-.cardform label small{color:var(--sub); font-weight:400;}
-.cardform input, .cardform textarea{width:100%; border:1px solid var(--line); border-radius:9px; padding:10px 12px; font-family:inherit; font-size:15px; background:#fff; color:var(--ink);}
-.cardform textarea{resize:vertical; min-height:64px;}
-.actions{display:flex; gap:12px; margin-top:18px;}
-.actions button{flex:1; padding:13px 0; border:none; border-radius:11px; font-size:15.5px; font-weight:700;}
-.actions .save{background:var(--stu); color:#fff;}
-.actions .skip{background:var(--soft); color:var(--sub); border:1px solid var(--line) !important;}
-
-/* ===== 报告视图 ===== */
-#report{display:none;}
-.rep{max-width:860px; margin:0 auto;}
-.rep h2{font-size:20px; margin-bottom:4px;}
-.rep .from{font-size:13px; color:var(--sub); margin-bottom:16px;}
-.rep .blk{border-left:4px solid var(--teacher); background:var(--panel); border:1px solid var(--line); border-left:4px solid var(--teacher); border-radius:0 12px 12px 0; padding:16px 18px; margin-bottom:14px;}
-.rep .blk h3{font-size:15px; margin-bottom:6px;}
-.rep .blk p{font-size:14.5px; color:var(--sub); white-space:pre-wrap;}
-.rep .blk .good{color:var(--ok); font-weight:700;}
-.rep .blk .bad{color:var(--red); font-weight:700;}
-footer{margin-top:30px; text-align:center; font-size:12.5px; color:var(--sub); line-height:1.8;}
-
-/* ===== 新手引导覆盖层 ===== */
-#ob{position:fixed; inset:0; background:rgba(41,36,27,.55); z-index:100; display:flex; align-items:center; justify-content:center; padding:20px;}
-#ob .obcard{background:var(--panel); border-radius:18px; padding:34px 34px 26px; max-width:520px; width:100%; box-shadow:0 18px 60px rgba(0,0,0,.35);}
-#ob .obcard .kicker{font-size:13px;}
-#ob .obcard h2{font-size:24px; margin:2px 0 6px;}
-#ob .obcard .lead{font-size:15px; color:var(--sub); margin-bottom:18px;}
-#ob .steps{display:flex; flex-direction:column; gap:12px; margin:18px 0 22px;}
-#ob .ostep{display:flex; gap:14px; align-items:flex-start; background:var(--soft); border-radius:12px; padding:14px 16px;}
-#ob .ostep .num{width:30px; height:30px; flex:none; border-radius:50%; background:var(--stu); color:#fff; font-weight:800; display:flex; align-items:center; justify-content:center; font-size:15px;}
-#ob .ostep b{font-size:15.5px;}
-#ob .ostep p{font-size:13.5px; color:var(--sub); margin-top:2px;}
-#ob .go2{width:100%; background:var(--stu); color:#fff; border:none; border-radius:12px; padding:15px 0; font-size:16.5px; font-weight:800;}
-#ob .skip2{background:none; border:none; width:100%; margin-top:8px; color:var(--sub); font-size:13px; padding:6px 0;}
-
-/* ===== 页面内 toast ===== */
-#toast{position:fixed; top:18px; left:50%; transform:translateX(-50%) translateY(-80px); background:var(--ink); color:#fff; padding:13px 26px; border-radius:12px; font-size:14.5px; z-index:120; opacity:0; transition:all .35s ease; max-width:86%; text-align:center; line-height:1.55;}
-#toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
-#toast b{color:#9FE3C9;}
-
-/* ===== 仪式卡升级：可点、可行动 ===== */
-.ritual li{cursor:pointer;}
-.ritual li .box{position:relative;}
-.ritual li .box::after{content:""; position:absolute; inset:-3px; border-radius:8px;}
-.ritual .stepbtn{margin-left:auto; flex:none; background:var(--stu); color:#fff; border:none; border-radius:8px; padding:7px 14px; font-size:13.5px; font-weight:700;}
-.ritual .stepbtn:hover{filter:brightness(1.07);}
-.ritual .stepbtn.ghost{background:var(--soft); color:var(--teacher); border:1px solid var(--line);}
-.ritual .allmsg{margin-top:12px; font-size:13.5px; color:var(--ok); font-weight:700; display:none;}
-.ritual .allmsg.show{display:block;}
-
+/* toast */
+#toast{ position:fixed; left:50%; transform:translateX(-50%); bottom:26px; background:var(--ink);
+  color:#fff; padding:12px 20px; border-radius:12px; font-size:14px; max-width:86%;
+  opacity:0; pointer-events:none; transition:opacity .25s, transform .25s; z-index:99; }
+#toast.show{ opacity:1; transform:translateX(-50%) translateY(-6px); }
+#toast.warn{ background:var(--warn); }
 </style>
 </head>
 <body>
-<header>
-  <div class="brand">彼灯<small>AI 自学系统 · 学生端</small></div>
-  <div class="nav">
-    <button id="navHome" class="cur" onclick="go('home')">工作台</button>
-    <button id="navReport" onclick="go('report')">周日报告</button>
-  </div>
-  <div class="who">学生：<b id="whoName">康杰</b> · 高一 · 第 <b id="whoWeek">6</b> 周</div>
-</header>
-<div id="toast"></div>
+<div class="shell">
 
-<!-- ============ 新手引导（仅首次打开） ============ -->
-<div id="ob" style="display:none;">
-  <div class="obcard">
-    <div class="kicker">第一次来？先花 30 秒</div>
-    <h2>这是你的学习操作系统</h2>
-    <p class="lead">不是题库，不是聊天机器人。它管你每天 15 分钟怎么学，并且把你的弱点变成你自己的卡片。</p>
-    <div class="steps">
-      <div class="ostep"><div class="num">1</div><div><b>每晚开这个页面，走三步</b><p>清复习卡 → 复盘一道错题 → 亲手写一张卡。15 分钟，三步，收工。</p></div></div>
-      <div class="ostep"><div class="num">2</div><div><b>教练只问，不给答案</b><p>你答不上来可以直说"我不会"，他会给更小的台阶；但直接要答案，免谈。</p></div></div>
-      <div class="ostep"><div class="num">3</div><div><b>作业和考试，AI 一边去</b><p>闭卷场景不打开教练。分数不降，才是这套系统的唯一成绩单。</p></div></div>
+  <!-- 屏0 欢迎 -->
+  <main id="v-welcome" class="welcome">
+    <div class="mark">灯</div>
+    <h1 class="center">我是你的 AI 自学教练</h1>
+    <p class="lead center">不补课，不代写。<br>我教你用自己的脑子，把题想通。</p>
+    <div class="word">从你最近做错的一道题开始。<br>整个过程大约 15 分钟。</div>
+    <button class="btn" onclick="goProfile()">开始</button>
+  </main>
+
+  <!-- 屏1 认识你 -->
+  <main id="v-profile" class="hidden">
+    <h1>先认识一下你</h1>
+    <p class="lead">三个小问题，十秒钟。这不是考试。</p>
+    <div class="qrow">
+      <div class="ql">你在哪个年级？</div>
+      <div class="chips" id="gradeChips">
+        <div class="chip" onclick="pickChip(this,'grade')">高一</div>
+        <div class="chip" onclick="pickChip(this,'grade')">高二</div>
+        <div class="chip" onclick="pickChip(this,'grade')">高三</div>
+      </div>
     </div>
-    <button class="go2" onclick="closeOb()">开始今晚的 15 分钟</button>
-    <button class="skip2" onclick="closeOb()">先自己随便看看</button>
-  </div>
+    <div class="qrow">
+      <div class="ql">最近一次考试，多少分？</div>
+      <input type="text" id="pfScore" placeholder="比如：数学 82。没有就写个大概感觉">
+    </div>
+    <div class="qrow">
+      <div class="ql">现在最没底的是哪科哪块？</div>
+      <div class="chips" id="subjChips">
+        <div class="chip2" onclick="pickChip2(this,'subj')">数学</div>
+        <div class="chip2" onclick="pickChip2(this,'subj')">物理</div>
+        <div class="chip2" onclick="pickChip2(this,'subj')">化学</div>
+        <div class="chip2" onclick="pickChip2(this,'subj')">生物</div>
+      </div>
+      <input type="text" id="pfWeak" placeholder="哪一章最没底？比如：电场、数列（可不填）" style="margin-top:10px">
+    </div>
+    <button class="btn" id="pfBtn" onclick="goUpload()" disabled>填好了</button>
+  </main>
+
+  <!-- 屏2 传错题 -->
+  <main id="v-upload" class="hidden">
+    <h1>传一道你最近做错的题</h1>
+    <p class="lead">一道就够。它就是你今晚的主菜。</p>
+    <div class="upload-box" id="upBox">
+      <div class="cam">📷</div>
+      <p>拍照，或者从相册选一张<br>（演示版：点一下模拟拍题）</p>
+    </div>
+    <div class="scanning hidden" id="scanning"><span class="dots">正在识别题目</span></div>
+    <button class="btn ghost" onclick="backProfile()">上一步</button>
+  </main>
+
+  <!-- 屏3 题面确认 -->
+  <main id="v-confirm" class="hidden">
+    <h1>这是你拍的题吗？</h1>
+    <p class="lead">识别出来了。认一下，或者换一道。</p>
+    <div class="stemcard" id="stemCard"></div>
+    <div id="qpickList"></div>
+    <button class="btn" id="cfBtn" onclick="startCoach()">就是这道，开始</button>
+    <button class="btn ghost" style="margin-top:10px" onclick="backUpload()">重新拍</button>
+  </main>
+
+  <!-- 屏4 教练对话 -->
+  <main id="v-chat" class="hidden chatview">
+    <div class="chathead">
+      <div class="t1" id="qTitle"></div>
+      <div class="t2">教练只问，不给答案 · 不会就说“我不会”</div>
+    </div>
+    <div class="polya" id="polyaBar"></div>
+    <div class="msgs" id="msgs"></div>
+    <div class="expect" id="expectLine"></div>
+    <div class="inputbar">
+      <button class="mic" id="micBtn" title="按住说话">🎤</button>
+      <input type="text" id="stuInput" placeholder="把你想说的写在这里…">
+      <button class="sendb" onclick="send()">发</button>
+    </div>
+  </main>
+
+  <!-- 屏5 错因 -->
+  <main id="v-cause" class="hidden">
+    <h1>刚才卡住，主要是因为</h1>
+    <p class="lead">就选一个，选错了也没关系。</p>
+    <div id="causeList"></div>
+    <button class="btn" id="causeBtn" onclick="goCard()" disabled>选好了</button>
+  </main>
+
+  <!-- 屏6 记一句话 -->
+  <main id="v-card" class="hidden">
+    <h1>把刚才想通的记下来</h1>
+    <p class="lead">用你自己的话，写给自己看。不用像抄笔记。</p>
+    <div class="fld">
+      <label>这道题的关键是什么？</label>
+      <input type="text" id="cardTitle" placeholder="比如：见圆弧轨道又问最高点，就想到动能定理+向心力">
+    </div>
+    <div class="fld">
+      <label>用一句话提醒自己</label>
+      <textarea id="cardBody" placeholder="把最容易再忘掉的那一点写下来…"></textarea>
+    </div>
+    <div class="fld">
+      <label>什么时候再见它</label>
+      <input type="text" id="cardWhen" value="明天">
+      <div class="fhint">系统会按这个时间提醒你。一般从“明天”开始。</div>
+    </div>
+    <button class="btn" onclick="saveCard()">记好了</button>
+  </main>
+
+  <!-- 屏7 收工 -->
+  <main id="v-done" class="hidden done">
+    <div class="seal">✅</div>
+    <h1 class="center">今晚就到这里</h1>
+    <p class="big center">你弄懂了一道题，<br>还给自己记下了一句话。</p>
+    <p class="lead center" style="margin-top:20px">明晚先复习它，再弄懂新的。</p>
+    <button class="btn" onclick="goNightly()">明晚见</button>
+  </main>
+
+  <!-- 屏8 今晚15分钟（日常） -->
+  <main id="v-nightly" class="hidden">
+    <h1>今晚 15 分钟</h1>
+    <p class="lead">就三步。做完收工。</p>
+    <div id="nightSteps"></div>
+    <button class="btn ghost" id="nbMore" onclick="goUpload()">我还有一道题想弄懂</button>
+    <button class="btn ghost" style="margin-top:10px" onclick="resetJourney()">重新走一遍第一天</button>
+  </main>
+
+  <!-- 屏9 演示模式（?demo） -->
+  <main id="v-demo" class="hidden">
+    <h1 class="center">演示 · 用了一个月之后</h1>
+    <p class="lead center">这是产品跑起来的样子。真实学生第一晚看到的是「欢迎」那一条直线。</p>
+    <h2>闭卷成绩（满分 100）</h2>
+    <div class="barchart" id="demoChart"></div>
+    <p class="lead" id="demoWeek"></p>
+    <h2>今晚三步（示例）</h2>
+    <div class="nstep"><div class="num">✓</div><div class="body"><div class="bt">复习</div><div class="bs">“电场力做功只看始末位置” 该复习了</div></div></div>
+    <div class="nstep"><div class="num">2</div><div class="body"><div class="bt">弄懂一道错题</div><div class="bs">等比数列 · 待弄懂 1 道</div></div></div>
+    <div class="nstep"><div class="num">3</div><div class="body"><div class="bt">记一句话</div><div class="bs">弄懂之后亮起</div></div></div>
+    <button class="btn ghost" onclick="location.search=''">回到真实旅程</button>
+  </main>
+
+  <div id="toast"></div>
 </div>
-<main>
-
-<!-- ============ 视图：工作台 ============ -->
-<section id="home">
-  <div class="grid">
-    <div class="card ritual">
-      <div class="kicker">今晚 15 分钟 · 就三步</div>
-      <h2>按顺序走，做完就收工</h2>
-      <ul id="ritualList"></ul>
-      <div class="allmsg" id="ritualAll">今晚三步全部完成。剩下的时间自由支配——想加练一道，就去错题库再点一道。</div>
-    </div>
-    <div class="card libs">
-      <div class="kicker">我的两库</div>
-      <h2>概念卡 · 模型卡</h2>
-      <div class="row"><span>概念卡（我会的）</span><span><b id="libC1">16</b> 张</span></div>
-      <div class="row"><span>模型卡（我会用的）</span><span><b id="libM1">2</b> 张</span></div>
-      <div class="row"><span>题型卡</span><span><b id="libT1">0</b> 张</span></div>
-      <div class="row"><span>错题库</span><span><b id="libE1">6</b> 道 · 已通过 4</span></div>
-      <p class="hint" style="margin-top:10px;">卡片只能自己写。教练不代写，这是铁律。</p>
-    </div>
-    <div class="card redlines">
-      <div class="kicker" style="color:var(--red)">三红线</div>
-      <h2 style="color:var(--red)">每天必读一遍</h2>
-      <ul>
-        <li>作业和考试，AI 一边去
-          <div class="t">闭卷场景不打开教练</div></li>
-        <li>先自己想 5 分钟，再开口
-          <div class="t">不是禁止问，是禁止伸手</div></li>
-        <li>答案不给，过程自己写
-          <div class="t">教练只问不答</div></li>
-      </ul>
-    </div>
-    <div class="card issues" style="grid-column:span 12;">
-      <div class="kicker">错题库 · 待复盘</div>
-      <h2>点一道题，进教练复盘（点卡上的按钮开始）</h2>
-      <p class="hint" style="margin-bottom:14px;">这四道是你卷子上的真题。复盘 = 教练带你自己把错因找出来，最后你亲手写卡片。教练全程只问不给答案。</p>
-      <div class="list" id="issueList"></div>
-    </div>
-  </div>
-</section>
-
-<!-- ============ 视图：教练对话 ============ -->
-<section id="chat">
-  <div class="chatwrap">
-    <div>
-      <div class="stem">
-        <div class="qtitle" id="qTitle"></div>
-        <div class="qbody" id="qBody"></div>
-        <div class="qnote" id="qNote"></div>
-      </div>
-      <div class="card" style="margin-top:16px;">
-        <div class="kicker">教练是谁</div>
-        <p class="hint">他不讲课、不给答案。他只做一件事：用问题把你逼到你自己想通为止。你打字回答他的问题就行——写错了没关系，错的回答比对的回答更能暴露问题。</p>
-      </div>
-      <div class="card" style="margin-top:16px;">
-        <button style="width:100%; background:var(--sub); color:#fff; border:none; border-radius:9px; padding:10px 0; font-weight:700;" onclick="go('home')">← 回工作台</button>
-      </div>
-    </div>
-    <div>
-      <div class="polya" id="polyaBar"></div>
-      <div class="talk">
-        <div class="head">
-          <div class="avatar">教</div>
-          <div>
-            <div class="nm">教练</div>
-            <div class="role">苏格拉底模式 · <em>只问不答</em></div>
-          </div>
-        </div>
-        <div class="msgs" id="msgs"></div>
-        <div class="expect" id="expectLine">等待教练提问…</div>
-        <div class="inputbar">
-          <textarea id="stuInput" placeholder="用你自己的话回答教练的问题…" rows="2"></textarea>
-          <button id="sendBtn" onclick="send()">回答</button>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ============ 视图：复盘收尾 ============ -->
-<section id="recap">
-  <div class="recapwrap">
-    <div class="kicker">复盘收尾 · 你自己的三步</div>
-    <div class="qtitle2" id="recapTitle"></div>
-    <p class="hint" style="margin-bottom:6px;">刚才那道题，错的原因是什么？——你自己归类，教练不替你贴标签。</p>
-    <div class="causes" id="causeGrid"></div>
-    <div class="cardform">
-      <div class="kicker">卡片铁律 · 自己写</div>
-      <h2 style="margin-bottom:12px;">把这道题沉淀成一张卡</h2>
-      <div class="frow"><label>卡片标题 <small>（一句话说清这张卡管什么）</small></label><input id="cardTitle" placeholder="例：恒力场里的类平抛"></div>
-      <div class="frow"><label>什么时候用 <small>（触发条件：看到什么信号就想起这张卡）</small></label><input id="cardTrigger" placeholder="例：物体受恒定合力，初速度和合力垂直"></div>
-      <div class="frow"><label>怎么用 <small>（用自己的话，两三句讲清楚做法）</small></label><textarea id="cardBody" placeholder="例：把恒力当成“等效重力”，然后按平抛处理…"></textarea></div>
-      <div class="actions">
-        <button class="save" onclick="saveCard()">存入两库</button>
-        <button class="skip" onclick="skipCard()">这次先不写</button>
-      </div>
-    </div>
-    <div class="card" style="margin-top:16px; background:var(--soft);">
-      <p class="hint">写完卡，这道题才从"听懂了"变成"你的"。存入两库后，它会按 1·2·4·8·15 天节奏进复习清单。</p>
-    </div>
-  </div>
-</section>
-
-<!-- ============ 视图：周日报告 ============ -->
-<section id="report">
-  <div class="rep">
-    <div class="kicker">管家 · 每周日 20:00</div>
-    <h2>本周学习报告</h2>
-    <div class="from">发给：你（学生版）· 本期第 6 周</div>
-    <div class="blk"><h3>① 抽 5 张卡问你</h3><p>复习到期 5 张，你复述通过 4 张、部分能 1 张。<span class="good">能复述 4/5</span>，"通电导线周围磁场方向判断"那张说卡了，已排进本周三。</p></div>
-    <div class="blk"><h3>② 错因透视</h3><p>本周复盘 2 道新错题：①概念不清 1 道（电场力做功与路径无关）；②审题偏差 1 道（"光滑"没看到）。<span class="good">没有再出现"直接要答案"。</span></p></div>
-    <div class="blk"><h3>③ 下周排期</h3><p>两道题按 1·2·4·8 天进入重测：周三 1 道、周五 1 道。周五晚数列随堂测是闭卷，<span class="bad">当晚 18:00 后教练下线</span>，考完才恢复。</p></div>
-    <div class="blk"><h3>④ AI 使用健康度</h3><p>本周 14 次对话：只提问引导 9 次、给一条提示 3 次、你自己答出 2 次。<span class="good">零违规</span>。上次"直接给答案"那单已经 4 周没再出现。</p></div>
-    <div class="blk"><h3>家长版一句话</h3><p>闭卷测 80，班级均分 74，六次测试 72→80，<span class="good">AI 用了 6 周，分数没掉。</span></p></div>
-  </div>
-</section>
-
-<footer>
-  彼灯·AI自学系统 学生端 · 可交互原型 · 教练引擎围绕你的四道真题内置教学分支<br>
-  本地单文件运行，无网络依赖 · 正式版教练由 MVP-01 提示词驱动真实大模型
-</footer>
-</main>
 
 <script>
-// ================= 全局状态 =================
-const S = {
-  libC: 16, libM: 2, libT: 0, libE: 6, passed: 4,
-  issuesDone: {},   // key -> cause 选择
-  violations: 0,
-  cur: null
+// ============================================================
+// 知识库 KB：学习地图 + 真题知识结构 + 错因（教练专用，学生无感）
+// ============================================================
+const KB = {
+  map: {
+    physics: {
+      name: "物理",
+      chapters: [
+        { c:"必修一 · 运动的描述", kps:["质点 参考系","位移 速度 加速度"] },
+        { c:"必修一 · 匀变速直线运动", kps:["三大公式","v-t 图象","自由落体"] },
+        { c:"必修一 · 相互作用", kps:["重力 弹力 摩擦力","受力分析","力的合成与分解"] },
+        { c:"必修一 · 牛顿运动定律", kps:["牛顿第一定律","牛顿第二定律 F=ma","牛顿第三定律","超重与失重","连接体模型","临界问题"],
+          traps:["忘画受力图就列方程","加速度方向与合力方向搞反","整体法隔离法混用"] },
+        { c:"必修二 · 曲线运动", kps:["平抛运动","圆周运动 向心力","运动的合成与分解"],
+          models:["类平抛模型","竖直平面圆周模型"], traps:["分运动独立性忘用","最高点向心力来源数错"] },
+        { c:"必修二 · 机械能", kps:["功与功率","动能定理","机械能守恒","能量守恒"],
+          models:["动能定理全程模型"], traps:["漏数某个力的功","动能定理与守恒条件混用"] },
+        { c:"必修三 · 静电场", kps:["库仑定律","电场强度 E","电势 电势能 电势差","电容"],
+          models:["电场中的类平抛","复合场圆周模型"], traps:["电场力做功只看初末位置","正负电荷受力方向搞反","电势能变化符号"] }
+      ]
+    },
+    math: {
+      name: "数学",
+      chapters: [
+        { c:"必修一 · 集合与函数", kps:["集合运算","函数三要素","单调性 奇偶性","指数 对数 幂函数","函数图象变换"] },
+        { c:"必修一 · 三角函数", kps:["任意角与弧度制","诱导公式","图象与性质","三角恒等变换"] },
+        { c:"数列", kps:["等差数列","等比数列","通项公式与求和","aₙ 与 Sₙ 的关系","递推构造","新定义题"],
+          models:["见 Sₙ 两式相减","新定义三步：复述→试例→反例优先"],
+          traps:["n=1 边界没单独验","公比是否为 1 没讨论","下标错位","定义没翻译成式子就下笔"] },
+        { c:"不等式", kps:["基本不等式","二次不等式"] },
+        { c:"立体几何", kps:["三视图","线面关系"] },
+        { c:"解析几何", kps:["直线与圆","椭圆 双曲线 抛物线"] },
+        { c:"概率统计", kps:["古典概型","分布列与期望"] },
+        { c:"导数（选修）", kps:["导数定义","单调性与极值"] }
+      ]
+    }
+  },
+  causes: [
+    { n:"概念没懂", why:"公式、定律本身没吃透，用的时候心里没底", c:"--c1" },
+    { n:"方法用错", why:"知道知识点，但该用的套路用错了地方", c:"--c2" },
+    { n:"没思路", why:"读完题不知道从哪下手，一片空白", c:"--c3" },
+    { n:"算错了", why:"路线其实对，死在计算或看错数上", c:"--c4" },
+    { n:"题没看清", why:"条件漏看了，或者把题意理解反了", c:"--c5" }
+  ],
+  questions: {
+    A: {
+      code:"物理 · 17 题", sub:"电场 + 半圆轨道",
+      subject:"physics", chapter:"必修三 · 静电场",
+      kps:["电场力 F=qE","竖直平面圆周运动","动能定理","向心力方程"],
+      models:["复合场圆周（把重力+电场力合成一个恒定“等效重力”）","最高点临界条件"],
+      traps:["轨道光滑→支持力不做功","电场力做功只看初末位置、与路径无关","最高点向心力方向指圆心","动能定理漏写电势能变化"],
+      variation:"重测变式：把电场方向反过来（竖直向下），或把半圆换成竖直圆周整圈求最低点速度。",
+      stem:"光滑绝缘水平轨道，末端衔接竖直平面内的半圆形轨道；空间存在匀强电场，场强方向竖直；带正电的小球沿轨道运动，从水平段进入半圆并冲向最高点。求小球在半圆最高点的速度、以及轨道对小球的作用力。（完整题面与数字以你卷子原图为准）",
+      nodes: {
+        n1: { p:"P1",
+          coach:["先别动笔。用你自己的话，把这个场景讲给我听：小球从哪儿出发，一路经历了什么，最后题目要的是哪两个东西？"],
+          expect:"复述场景 + 说出要求的两个物理量",
+          matchers:[
+            {re:/速度|力|两个|要求|最高点/, next:"n2", fb:"好，场景你抓到了。最关键的是：最高点的速度、最高点受的力——这两个量都发生在同一个位置，这是这道题的题眼。"}
+          ],
+          fallback:{hint:"没关系，慢一点讲。小球在水平段做什么运动？进半圆以后呢？它在竖直平面里转——对，就照这个思路说一遍。", next:"n1"}
+        },
+        n2: { p:"P1",
+          coach:["从水平段起点到半圆最高点，小球一路受到了哪几个力？——把名字都报出来。"],
+          expect:"把力数全（重力、电场力、支持力）",
+          matchers:[
+            {re:/支持力|轨道.{0,6}力|挤压|N/, next:"n3", fb:"很关键的一步：支持力被你点名了。轨道光滑，所以支持力始终垂直于速度——那它做不做功？你先答这个。"},
+            {re:/重力.{0,6}电场力|电场力.{0,6}重力/, next:"n3", fb:"重力、电场力都数到了——还有一个跟轨道接触才有的力呢？它叫什么？它做功吗？"}
+          ],
+          fallback:{hint:"逐个排查：竖直方向有一个恒定的、跟地球有关的；它还带电、场区里还有一个；轨道贴着它、还有一个法向的。三个，都叫什么名字？", next:"n2"}
+        },
+        n3: { p:"P1",
+          coach:["那这三个力，从起点到最高点，各做了多少功？——不做功的说清楚为什么不做。"],
+          expect:"支持力不做功（垂直速度方向）；重力、电场力各写功的表达式",
+          matchers:[
+            {re:/不做功|垂直|不做/, next:"n4", fb:"对：支持力永远垂直于速度方向，功为零。那重力做的功是 +mgh 还是 −mgh？电场力呢——正电荷，顺着场强方向还是逆着？这两个的符号你决定一下。"},
+            {re:/mgh|mg/, next:"n4", fb:"重力功写出来了。注意最高点在起点的上方还是下方？符号对不对，再用正电荷在场中的受力方向核一遍电场力的功。"}
+          ],
+          fallback:{hint:"做功看两点：力、位移方向的夹角。支持力跟速度方向什么关系？那它功是多少？先把“不做功”这三个字说出来。", next:"n3"}
+        },
+        n4: { p:"P2",
+          coach:["条件清了。现在说思路：从起点到最高点，你打算用哪条定律把速度求出来？——为什么用它，一句话理由。"],
+          expect:"动能定理 / 能量守恒（全程用功和能量打通）",
+          matchers:[
+            {re:/动能定理|能量守恒|功能关系/, next:"n5", fb:"可以。选它的理由你说出来了：过程里只有两个力做功，而支持力零功——全程一遍列完，中间轨道形状根本不用分段管。这就是选模型的依据，不是背口诀。"},
+            {re:/牛顿|运动学/, next:"n5", fb:"牛顿定律当然能推，但曲线轨道里每一段加速度方向都在变——你要分段算到什么时候？有没有一条定律，只看首末状态、不看中间路径弯不弯？"}
+          ],
+          fallback:{hint:"想一想：哪条物理规律只关心初末状态、不关心中间路径？", next:"n4"}
+        },
+        n5: { p:"P2",
+          coach:["最高点还有一个隐藏条件，跟“圆周”有关。在最高点，谁提供向心力？——把向心力方程的左边写出来（右边统一是 mv²/R）。"],
+          expect:"最高点向心力来源（重力+电场力+轨道力的合力）",
+          matchers:[
+            {re:/重力.{0,6}电场力.{0,6}轨道|N.{0,4}mg.{0,4}qE|mg.{0,4}qE.{0,4}N/, next:"n6", fb:"齐了：N、mg、qE 三者按方向摆好。在最高点它们全在竖直方向——向心方向指向哪边？你把“指向圆心”的那一侧符号定为正，再写一遍。"},
+            {re:/合力|向心/, next:"n6", fb:"“合力提供向心力”方向是对的。具体到最高点：哪几个力指向圆心、哪几个背离？按指向圆心为正，把方程写出来。"}
+          ],
+          fallback:{hint:"圆周运动最高点，向心方向是竖直向下（指向半圆圆心）。哪些力指向下、哪些指向上？", next:"n5"}
+        },
+        n6: { p:"P3",
+          coach:["现在两条方程都在你手上了：一条能量、一条向心。自己代入数值算最高点速度，再算 N。算的时候盯一件事——电场力的功，跟路径有没有关系？"],
+          expect:"完成计算，并回答电场力做功是否与路径有关",
+          matchers:[
+            {re:/无关|只.{0,6}高度|没关系/, next:"n7", fb:"电场力做功只看始末位置、与路径无关——你这句话说对了，这正是这道题敢于直接全程用动能定理的原因。"},
+            {re:/有关|路径/, next:"n7", fb:"停一下：匀强电场里，电场力是恒力，恒力做功只取决于始末位置差——跟轨道弯成什么形状没关系。你把这句再说一遍，然后继续算。"}
+          ],
+          fallback:{hint:"匀强电场→恒力→做功只看位移在力方向的投影。把这句写下来，然后完成两方程联立。", next:"n6"}
+        },
+        n7: { p:"P4",
+          coach:["收尾两问：第一，你当天卡在“半圆顶端不会列式”——现在让你重列，你卡的那个点还卡吗？如果清楚多了，是哪一个念头通了？第二，这道题你最想记下一条什么规律？给它起个名字。"],
+          expect:"说出通了的那个点 + 想记下的规律",
+          matchers:[
+            {re:/模型|圆周.{0,6}能量|动能定理/, next:"__END__", fb:"“圆周+能量”联合模型——好名字。以后见到圆弧轨道、又问最高点速度或压力，就想起它。去把它写下来。"},
+            {re:/.+/, next:"__END__", fb:"记下你自己的说法。现在去收尾两步：选错因，写一句话。"}
+          ],
+          fallback:{hint:"哪怕一句“我知道哪没懂了”也可以。去收尾吧。", next:"n7"}
+        }
+      }
+    },
+    B: {
+      code:"物理 · 12 题", sub:"电场平抛 · 多选",
+      subject:"physics", chapter:"必修三 · 静电场",
+      kps:["类平抛运动","运动合成与分解","电场力恒定","动能变化"],
+      models:["类平抛模型：沿初速度方向匀速 + 沿恒力方向匀加速"],
+      traps:["速率变化全来自竖直分量","合外力竖直→做功只看竖直位移","分运动互不干扰"],
+      variation:"重测变式：电场水平放置、初速度竖直；或改成电子（负电荷）进场区。",
+      stem:"竖直方向的匀强电场中，带正电的小球以水平初速度抛出，形成一段曲线运动。四个选项围绕小球的受力、速度变化与能量转化设问（多选）。（完整题面与数字以你卷子原图为准。）",
+      nodes: {
+        n1: { p:"P1",
+          coach:["老规矩先复述：小球怎么被抛出去的？中间受什么力？做的是一段什么运动——你的话讲。"],
+          expect:"水平初速 + 竖直方向受力 + 曲线运动",
+          matchers:[ {re:/平抛|抛|曲线/, next:"n2", fb:"好，场景有了。下一步先别看选项——把受的力数清楚。"} ],
+          fallback:{hint:"初速度朝哪？力的方向朝哪？两者什么关系？", next:"n1"}
+        },
+        n2: { p:"P1",
+          coach:["小球带正电、电场竖直——它受哪几个力？这些力合起来是什么方向、什么性质（恒定还是变化）？"],
+          expect:"重力+电场力，都在竖直方向，合力恒定",
+          matchers:[
+            {re:/恒|不变|重力.{0,6}电场力|竖直/, next:"n3", fb:"对：两个恒力都竖直，合起来还是恒力、还竖直。这个“恒”字是整道题的钥匙。"},
+            {re:/.+/, next:"n3", fb:"再数一遍：一个跟质量有关的恒力，一个跟电荷与场强有关的恒力——都沿竖直线。"}
+          ],
+          fallback:{hint:"重力竖直向下；正电荷受电场力沿场强方向——场强方向题目说了朝哪？", next:"n2"}
+        },
+        n3: { p:"P2",
+          coach:["恒力 + 初速度垂直于力——这个组合你在必修二见过。它叫什么运动？处理它的第一板斧是什么？"],
+          expect:"（类）平抛运动；先正交分解",
+          matchers:[
+            {re:/平抛|类平抛/, next:"n4", fb:"类平抛——名字对了。名字不重要，重要的是它给处理方式定了规矩：沿初速度方向和沿恒力方向正交分解，两个方向各自独立、互不掺和。"},
+            {re:/分解|水平.{0,6}竖直/, next:"n4", fb:"分解方向选对了。这两个方向上各自是什么运动？一个匀速、一个匀加速——你把这句说完。"}
+          ],
+          fallback:{hint:"想那个经典模型——恒力垂直初速度。它的学名三个字，第一个字是“平”。", next:"n3"}
+        },
+        n4: { p:"P3",
+          coach:["现在用这把斧子去劈选项：水平方向的速度分量会不会变？竖直方向的速度怎么随时间涨？——各选项逐条判断，先把你最有把握的一条说结论。"],
+          expect:"水平分量不变；竖直分量均匀增大；据此判选项",
+          matchers:[
+            {re:/不变|匀速/, next:"n5", fb:"水平分量不变、竖直分量匀加速——速率的变化全部来自竖直方向。能量也顺着这条线走：合外力竖直，做功全算在竖直位移头上。"},
+            {re:/.+/, next:"n5", fb:"方向对，表述再收紧一点：哪个分量恒定、哪个分量线性增长？照这个说一遍，再看选项。"}
+          ],
+          fallback:{hint:"先独立看水平方向——那个方向上有没有力？没有力速度分量会怎样？", next:"n4"}
+        },
+        n5: { p:"P4",
+          coach:["最后一问：你当时选了 AB。现在拿“类平抛”的眼光回头看——当时的判断里，哪一条你是有把握的？哪一条其实是凭感觉蒙的？"],
+          expect:"区分有据判断与凭感觉判断",
+          matchers:[
+            {re:/蒙|感觉|没把握|不确定/, next:"__END__", fb:"敢承认“那条是蒙的”——这一句比做对十道题值钱。凭感觉的那条，现在用分量分析重判一遍，这就是你以后选多选的规矩：每条都要有判定依据。"},
+            {re:/.+/, next:"__END__", fb:"好。把你刚才重判的依据记下来——这就是你记下那句话时最该写的“什么时候用”。去收尾吧。"}
+          ],
+          fallback:{hint:"说实话就行，教练不会笑你。哪条是算出来的、哪条是感觉给你的？", next:"n5"}
+        }
+      }
+    },
+    C: {
+      code:"数学 · 14 题", sub:"等比数列 · 多选",
+      subject:"math", chapter:"数列",
+      kps:["等比数列定义与通项","前 n 项和 Sₙ","aₙ 与 Sₙ 互化","充分必要条件"],
+      models:["见 Sₙ 两式相减","反例优先判充分必要"],
+      traps:["n=1 时 Sₙ₋₁ 不存在，边界要单独验","公比 q=1 要讨论","充分/必要方向搞反"],
+      variation:"重测变式：把 2Sₙ 换成 Sₙ + aₙ₊₁，或让递推式里多一个 aₙ 项。",
+      stem:"已知等比数列 {aₙ} 满足 a₄ = 27，aₙ₊₁ = 2Sₙ + c（Sₙ 为前 n 项和，c 为常数），四个选项围绕公比、通项、以及充分必要条件设问（多选）。（完整题面与数字以你卷子原图为准。）",
+      nodes: {
+        n1: { p:"P1",
+          coach:["先说题面：这道题给你的“原料”是什么形状的关系式？——aₙ₊₁ 和 Sₙ 挂在一起，这个形状你眼熟吗？"],
+          expect:"识别出这是“项与和”混合的递推关系",
+          matchers:[
+            {re:/S[nₙ]|前.{0,2}项和|和.{0,2}项/, next:"n2", fb:"对，原料是“项”跟“前 n 项和”搅在一起的关系式。等比数列的原料本来是 aₙ₊₁ = q·aₙ——现在的形状不对，所以第一步先得把 Sₙ 消掉。"},
+            {re:/递推|关系/, next:"n2", fb:"是递推关系，但比标准的“项推项”多了一层——多的那层叫什么？把它名字说出来。"}
+          ],
+          fallback:{hint:"aₙ₊₁ 和什么量直接发生了关系？这个量在数列里通常用什么符号表示？", next:"n1"}
+        },
+        n2: { p:"P2",
+          coach:["消 Sₙ 的老手法是什么？——想一想：跟 Sₙ 配套的、天然就存在的另一条式子是哪条？"],
+          expect:"写出 Sₙ₋₁ 与 aₙ₋₁ 的关系，两式相减",
+          matchers:[
+            {re:/相减|S[nₙ].{0,6}[1₁]|n-1|n−1/, next:"n3", fb:"就是它：把递推式对 n 和 n−1 各写一遍，两式相减，Sₙ 那一项直接对消。剩下的是 aₙ₊₁ 和 aₙ 的纯关系。"},
+            {re:/消|化简|降/, next:"n3", fb:"思路对。具体动作：n 换成 n−1 再写一遍原式，然后两条式子做减法——Sₙ 消掉了，剩下的就是项与项的关系。"}
+          ],
+          fallback:{hint:"把 aₙ₊₁ = 2Sₙ + c 里的 n 换成 n−1，写出第二条式子。两条摆在一起，做一次减法。", next:"n2"}
+        },
+        n3: { p:"P3",
+          coach:["相减之后剩什么？现在离“等比”还差一步——公比是多少？还有一个坑：n = 1 时，你刚才那套操作还能用吗？为什么？"],
+          expect:"得出公比；并处理 n=1 边界",
+          matchers:[
+            {re:/n.{0,2}1|首项|边界/, next:"n4", fb:"你碰到那个坑了：n=1 时 Sₙ₋₁ 不存在，相减这一步对 n=1 失效——所以 a₂ 与 a₁ 的关系要单独用原式核一遍。边界就是这种地方：套路断掉的地方，单独验。"},
+            {re:/2|公比/, next:"n4", fb:"公比出来了。但先别走——n=1 那一格你回看了吗？递推式在 n=1 时给出什么？跟你的公比一致吗？"}
+          ],
+          fallback:{hint:"相减得到的式子对 n≥2 成立。n=1 的时候它还成立吗——把 n=1 代回原式试试。", next:"n3"}
+        },
+        n4: { p:"P3",
+          coach:["数值你自己带原图算。现在看那两个充分必要条件的选项：你的判定方法是什么——先说判定方向，“X 是 A* 的充分条件”是哪个方向推哪个？"],
+          expect:"明确“充分”与“必要”各指哪个推哪个",
+          matchers:[
+            {re:/充分.{0,4}必要|必要.{0,4}充分|推出|⇒|=>/, next:"n5", fb:"方向抓对了：充分是“X⇒Y”，必要是“Y⇒X”。判“不成立”的那个方向，最有力的证据是什么——是举一个反例。"},
+            {re:/.+/, next:"n5", fb:"先把两个词的方向说死：谁推谁是充分、谁推谁是必要？说清楚了再判。"}
+          ],
+          fallback:{hint:"充分条件 = 前推后成立；必要条件 = 后推前成立。要推翻，找反例。", next:"n4"}
+        },
+        n5: { p:"P4",
+          coach:["回看：这题你写 AB。复盘两件事——第一，“aₙ₊₁=2Sₙ+c”这种形状，你以后看到第一反应该是什么动作？第二，充分必要条件的判定，你给自己立一条什么规矩？"],
+          expect:"沉淀两个动作：“见 S 想相减” + “反例意识”",
+          matchers:[
+            {re:/相减|错位/, next:"__END__", fb:"“见 S 就相减”——这个反射就是你今天挣到的东西，以后每道这种题都用它。反例那条也记上：否定充分或必要，一个反例顶十个证明。"},
+            {re:/.+/, next:"__END__", fb:"把你刚才的原话写进那句话里就行。去收尾。"}
+          ],
+          fallback:{hint:"第一反射是什么动作？三个字，“______”。", next:"n5"}
+        }
+      }
+    },
+    D: {
+      code:"数学 · 15 题", sub:"A* 序列新定义",
+      subject:"math", chapter:"数列",
+      kps:["数列新定义题","充分必要条件","构造与验证"],
+      models:["新定义三步：①复述定义 ②构造具体例子 ③反例优先"],
+      traps:["定义没翻译成式子就下笔","下标错位","充分必要方向搞反"],
+      variation:"重测变式：换一条新定义（如“和谐序列”），同样考定义操作化。",
+      stem:"题目定义了一种“ A* 序列”，给出其满足的条件，并围绕“某条件是序列为 A* 的充分/必要条件”设问。（完整定义与设问以你卷子原图为准。）",
+      nodes: {
+        n1: { p:"P1",
+          coach:["新定义题，第一件事永远不是做题——是用你自己的话把定义讲一遍。A* 序列要满足什么条件，才算“是”A*？讲给我听，慢就慢，讲对为止。"],
+          expect:"用自己的话复述定义",
+          matchers:[
+            {re:/满足|条件|定义|性质/, next:"n2", fb:"能复述，定义就进脑子了。新定义题全部分数都藏在这句话里——定义本身没吃透，后面全白干。"},
+            {re:/.+/, next:"n2", fb:"先别管准不准，按你现在的理解说。哪个词卡住，就说明定义里哪个字没读透。"}
+          ],
+          fallback:{hint:"回原图，把“ A* 序列”的定义那句抄下来，然后换掉数学符号、用中文大白话重说。", next:"n1"}
+        },
+        n2: { p:"P2",
+          coach:["定义活了，下一步是“操作化”：随便编一个具体序列，带进定义里验证一遍——它是合格的 A* 还是归错堆的？你编一个试试。"],
+          expect:"构造一个具体序列实例并代入验证",
+          matchers:[
+            {re:/例子|试|代入|比如|1.{0,3}2|构造/, next:"n3", fb:"动手了——这一步就叫“定义操作化”。你刚才验证的每个动作，就是这题真正的解题动作。"},
+            {re:/.+/, next:"n3", fb:"编不出来？那就先用最简单的：全是同一个数的序列，行不行？带进去验证。"}
+          ],
+          fallback:{hint:"写一个五项以内的具体序列（数字随便选），逐条核对定义条件，打勾打叉。", next:"n2"}
+        },
+        n3: { p:"P2",
+          coach:["现在看充分必要的方向：题目要你判“某条件是 A* 的充分条件”——这是什么方向推什么？你的判定策略选哪条路：正面推，还是找反例？"],
+          expect:"明确推的方向 + 选择“证明”或“反例”路线",
+          matchers:[
+            {re:/反例/, next:"n4", fb:"反例优先——聪明。判“不是充分”，一个反例就够；判“是充分”，才需要正面证明。你挑的武器对，方向对了吗？"},
+            {re:/证明|正面|推/, next:"n4", fb:"正面推是重武器：要证“条件⇒A*”，每一步都得从定义出发。提醒你：要否定一个方向，其实有轻武器——是什么？"}
+          ],
+          fallback:{hint:"否定“X⇒Y”，最有力的轻武器是什么？（三个字，含一个“例”字）", next:"n3"}
+        },
+        n4: { p:"P3",
+          coach:["你当时“推了两步卡住”。现在按你的路线走——正面推的同学：这两步里，哪一步用到了定义的哪一条？反例路线的同学：你的反例要同时满足什么、又不满足什么？卡住的地方说给我。"],
+          expect:"定位卡点（哪个定义条目没接上 / 反例条件没凑齐）",
+          matchers:[
+            {re:/卡|不会|差|缺/, next:"n5", fb:"卡点说清楚了——十有八九是定义里某一条还没翻译成“能算的式子”。新定义题的卡点几乎全在这个翻译环节。"},
+            {re:/.+/, next:"n5", fb:"照你的进度继续。哪一步落不了地，就把定义里对应的条款重读一遍，把它变成等式或不等式再试。"}
+          ],
+          fallback:{hint:"把卡住的那一步写出来——写出来的那一刻，你就能看见它缺的是定义里的哪一条。", next:"n4"}
+        },
+        n5: { p:"P4",
+          coach:["收个总账：新定义题你给自己沉淀一条什么样的通用打法？——从“见到定义”到“下笔”，第一、第二、第三个动作各是什么？"],
+          expect:"沉淀新定义题的通用三步打法",
+          matchers:[
+            {re:/复述|读|翻译/, next:"__END__", fb:["三步齐了：①先复述定义（换成自己的话）；②马上构造具体例子做操作化；③判充分必要走“反例优先”。这三步不只是这道题的，是所有新定义题的。"]},
+            {re:/.+/, next:"__END__", fb:"把你的原话写进卡里。这条打法以后每道新定义题都用得上——去收尾。"}
+          ],
+          fallback:{hint:"第一动作永远是：别急着做，先把定义讲成自己的话。然后呢？", next:"n5"}
+        }
+      }
+    }
+  }
 };
-// 保存/恢复（localStorage 优先）
-try{
-  const sv = JSON.parse(localStorage.getItem("biden") || "null");
-  if(sv) Object.assign(S, sv);
-}catch(e){}
-function persist(){ try{ localStorage.setItem("biden", JSON.stringify(S)); }catch(e){} }
-
-// ================= 视图路由 =================
-function go(view){
-  ["home","chat","recap","report"].forEach(v=>{
-    document.getElementById(v).style.display = (v===view) ? "block" : "none";
-  });
-  document.getElementById("navHome").className = (view==="report") ? "" : "cur";
-  document.getElementById("navReport").className = (view==="report") ? "cur" : "";
-  window.scrollTo(0,0);
-}
-
-// ================= 工作台渲染 =================
-const RITUAL = [
-  {t:"1 · 清复习卡", d:"今天 3 张到期，复述一遍", tip:"说不出来就标记，明天再来", btn:"去清卡", act:"toast('清卡入口在正式版接两库复习视图。原型里这步先手动过。')"},
-  {t:"2 · 复盘一道错题", d:"点开错题卡，教练带你走", tip:"卡住了直说，教练会给台阶", btn:"去复盘", act:"startLesson('A')"},
-  {t:"3 · 写一张卡", d:"复盘完亲手写，教练不代写", tip:"写完存入两库，按 1·2·4·8 天复习"},
-  {t:"4 · 记一笔 AI 日志", d:"今天 AI 怎么帮的，只记事实", tip:"正式版自动记录，这里手动"}
-];
-function renderHome(){
-  document.getElementById("whoWeek").textContent = 6;
-  document.getElementById("whoName").textContent = "康杰";
-  const rl = document.getElementById("ritualList");
-  const states = S.ritual || [false,false,false,false];
-  rl.innerHTML = RITUAL.map((r,i)=>{
-    const done = states[i];
-    const btn = r.btn ? (r.act.indexOf("startLesson")===0
-      ? `<button class="stepbtn" onclick="${r.act}">${r.btn}</button>`
-      : `<button class="stepbtn ghost" onclick="${r.act}">${r.btn}</button>`) : "";
-    return `<li class="${done?'done':''}" onclick="toggleRitual(${i}, event)">
-      <div class="box ${done?'on':''}"></div>
-      <div class="txt"><b>${r.t}</b> · ${r.d}<div class="hint">${r.tip}</div></div>${btn}</li>`;
-  }).join("");
-  const all = states.every(x=>x);
-  document.getElementById("ritualAll").className = "allmsg" + (all?" show":"");
-  document.getElementById("libC1").textContent = S.libC;
-  document.getElementById("libM1").textContent = S.libM;
-  document.getElementById("libT1").textContent = S.libT;
-  document.getElementById("libE1").textContent = S.libE;
-
-  const list = document.getElementById("issueList");
-  list.innerHTML = ISSUES.map(it=>{
-    const st = S.issuesDone[it.key];
-    return `<div class="issue ${st?'done-state':''}">
-      <div class="code">${it.code} · ${it.sub}</div>
-      <div class="name">${it.name}</div>
-      <div class="meta">你的原始作答：${it.orig} <br>当前状态：${st ? "已复盘 · 错因 "+st : "待复盘"}</div>
-      <button class="go" onclick="startLesson('${it.key}')">${st?'再走一遍':'进入教练复盘'}</button>
-    </div>`;
-  }).join("");
-}
-function toggleRitual(i, e){
-  if(e && e.target.tagName === "BUTTON") return; // 点按钮不打勾
-  const states = S.ritual || [false,false,false,false];
-  states[i] = !states[i];
-  S.ritual = states;
-  persist();
-  renderHome();
-}
-
-// ================= 教学脚本（四道真题） =================
-// 波利亚四步：P1 理解题目 → P2 拟计划 → P3 执行 → P4 回看
-// 每个节点：coach=教练要说的话(数组)，expect=提示行，matchers=[{re,next,fb}]，fallback={hint,next}
-const ISSUES = [
-  {key:"A", code:"A · 物理第17题", sub:"电场+半圆轨道", name:"水平轨道接竖直半圆，物体带电进匀强电场，能量与圆周综合大题", orig:"算到半圆顶端不会列式", cause5:"①概念不清"},
-  {key:"B", code:"B · 物理第12题", sub:"电场平抛多选", name:"正电小球在竖直匀强电场中抛出，判断速度、能量相关命题", orig:"当时选了 AB", cause5:"②模型选错"},
-  {key:"C", code:"C · 数学第14题", sub:"等比数列多选", name:"a₄=27、aₙ₊₁=2Sn+c，判断公比、通项、充分必要条件", orig:"当时写了 AB", cause5:"③策略缺失"},
-  {key:"D", code:"D · 数学第15题", sub:"A*新定义", name:"A* 序列新定义，判断充分必要条件", orig:"推了两步卡住", cause5:"⑤审题偏差"}
-];
-// 教学分支脚本在第二个 script 块中定义 LESSONS = {...}
 </script>
 
 <script>
 // ============================================================
-// LESSONS：四道真题的教学分支（苏格拉底，只问不答）
+// 旅程状态机 + 视图渲染
 // ============================================================
-const LESSONS = {
-
-// ---------- A · 物理17：电场+半圆轨道 ----------
-A: {
-  stem: "光滑绝缘水平轨道，末端衔接竖直平面内的半圆形轨道；空间存在匀强电场，场强方向沿竖直方向；带正电的小球沿轨道运动，从水平段进入半圆并冲向最高点。求小球在半圆最高点的速度、以及轨道对小球的作用力。（完整题面与数字以你卷子原图为准。）",
-  nodes: {
-    n1: { p:"P1",
-      coach: ["先别动笔。用你自己的话，把这个场景讲给我听：小球从哪儿出发，一路经历了什么，最后题目要的是哪两个东西？"],
-      expect: "复述场景 + 说出要求的物理量",
-      matchers: [
-        {re: /速度|力|两个|要求|最高点/, next:"n2", fb:"好，场景你抓到了。最关键的是：最高点的速度、最高点受的力——这两个量都发生在同一个位置，这是这道题的题眼。"}
-      ],
-      fallback: {hint:"没关系，慢一点讲。小球在水平段做什么运动？进半圆以后呢？它在竖直平面里转——对，就照这个思路说一遍。", next:"n1"}
-    },
-    n2: { p:"P1",
-      coach: ["从水平段起点到半圆最高点，小球一路受到了哪几个力？——把名字都报出来。"],
-      expect: "把力数全（重力、电场力、支持力）",
-      matchers: [
-        {re: /支持力|轨道.*(力|挤压)|N/, next:"n3",
-         fb:"很关键的一步：支持力被你点名了。轨道光滑，所以支持力始终垂直于速度——那它做不做功？你先答这个。"},
-        {re: /重力.*电场力|电场力.*重力/, next:"n3",
-         fb:"重力、电场力都数到了——还有一个跟轨道接触才有的力呢？它叫什么？它做功吗？"}
-      ],
-      fallback: {hint:"逐个排查：竖直方向有一个恒定的、跟地球有关的；它还带电、场区里还有一个；轨道贴着它、还有一个法向的。三个，都叫什么名字？", next:"n2"}
-    },
-    n3: { p:"P1",
-      coach: ["那这三个力，从起点到最高点，各做了多少功？——不做功的说清楚为什么不做。"],
-      expect: "支持力不做功（垂直速度方向）；重力、电场力各写功的表达式",
-      matchers: [
-        {re: /不做功|垂直|不做/, next:"n4",
-         fb:"对：支持力永远垂直于速度方向，功为零。那重力做的功是 +mgh 还是 −mgh？电场力呢——正电荷，顺着场强方向还是逆着？这两个的符号你决定一下。"},
-        {re: /mgh|mg/, next:"n4",
-         fb:"重力功写出来了。注意最高点在起点的上方还是下方？符号对不对，再用正电荷在场中的受力方向核一遍电场力的功。"}
-      ],
-      fallback: {hint:"做功看两点：力、位移方向的夹角。支持力跟速度方向什么关系？那它功是多少？先把“不做功”这三个字说出来。", next:"n3"}
-    },
-    n4: { p:"P2",
-      coach: ["条件清了。现在说思路：从起点到最高点，你打算用哪条定律把速度求出来？——为什么用它，一句话理由。"],
-      expect: "动能定理 / 能量守恒（全程用功和能量打通）",
-      matchers: [
-        {re: /动能定理|能量守恒|功能关系/, next:"n5",
-         fb:"可以。选它的理由你说出来了：过程里只有两个力做功，而支持力零功——全程一遍列完，中间轨道形状根本不用分段管。这就是选模型的依据，不是背口诀。"},
-        {re: /牛顿|运动学/, next:"n5",
-         fb:"牛顿定律当然能推，但曲线轨道里每一段加速度方向都在变——你要分段算到什么时候？有没有一条定律，只看首末状态、不看中间路径弯不弯？"}
-      ],
-      fallback: {hint:"提示级别 1：想一想，哪条物理规律只关心初末状态、不关心中间路径？", next:"n4"}
-    },
-    n5: { p:"P2",
-      coach: ["最高点还有一个隐藏条件，跟“圆周”有关。在最高点，谁提供向心力？——把向心力方程的左边写出来（右边统一是 mv²/R）。"],
-      expect: "最高点向心力来源（重力+电场力+轨道力的合力）",
-      matchers: [
-        {re: /重力.*电场力.*轨道|N.*mg.*qE|mg.*qE.*N/, next:"n6",
-         fb:"齐了：N、mg、qE 三者按方向摆好。在最高点它们全在竖直方向——向心方向指向哪边？你把“指向圆心”的那一侧符号定为正，再写一遍。"},
-        {re: /合力|向心/, next:"n6",
-         fb:"“合力提供向心力”方向是对的。具体到最高点：哪几个力指向圆心、哪几个背离？按指向圆心为正，把方程写出来。"}
-      ],
-      fallback: {hint:"提示级别 1：圆周运动最高点，向心方向是竖直向下（指向半圆圆心）。哪些力指向下、哪些指向上？", next:"n5"}
-    },
-    n6: { p:"P3",
-      coach: ["现在两条方程都在你手上了：一条能量、一条向心。自己代入数值算最高点速度，再算 N。算的时候盯一件事——电场力的功，跟路径有没有关系？"],
-      expect: "完成计算，并回答电场力做功是否与路径有关",
-      matchers: [
-        {re: /无关|只.*高度|没关系/, next:"n7",
-         fb:"电场力做功只看始末位置、与路径无关——你这句话说对了，这正是这道题敢于直接全程用动能定理的原因。"},
-        {re: /有关|路径/, next:"n7",
-         fb:"停一下：匀强电场里，电场力是恒力，恒力做功只取决于始末位置差——跟轨道弯成什么形状没关系。你把这句再说一遍，然后继续算。"}
-      ],
-      fallback: {hint:"提示级别 2：匀强电场→恒力→做功只看位移在力方向的投影。把这句写下来，然后完成两方程联立。", next:"n6"}
-    },
-    n7: { p:"P4",
-      coach: ["收尾两问：第一，你当天卡在“半圆顶端不会列式”——现在让你重列，你卡的那个点还卡吗？如果清楚多了，是哪一个念头通了？第二，这道题你最想把它沉淀成一张什么卡——概念卡还是模型卡？卡的名字你想叫什么？"],
-      expect: "说出通了的那个点 + 想沉淀的卡片",
-      matchers: [
-        {re: /模型|圆周.*能量|动能定理/, next:"__END__",
-         fb:"“圆周+能量”联合模型——好名字。这张卡的触发词就是：见圆弧轨道、又问最高点速度或压力。去把它写下来。"},
-        {re: /.+/, next:"__END__",
-         fb:"记下你自己的说法。现在去完成收尾三步：选错因、写卡片。"}
-      ],
-      fallback: {hint:"哪怕一句“我知道哪没懂了”也可以。去收尾吧。", next:"n7"}
-    }
-  }
-},
-
-// ---------- B · 物理12：电场平抛多选 ----------
-B: {
-  stem: "竖直方向的匀强电场中，带正电的小球以水平初速度抛出，形成一段曲线运动。四个选项围绕小球的受力、速度变化与能量转化设问（多选）。（完整题面与数字以你卷子原图为准。）",
-  nodes: {
-    n1: { p:"P1",
-      coach: ["老规矩先复述：小球怎么被抛出去的？中间受什么力？做的是一段什么运动——你的话讲。"],
-      expect: "水平初速 + 竖直方向受力 + 曲线运动",
-      matchers: [
-        {re: /平抛|抛|曲线/, next:"n2", fb:"好，场景有了。下一步先别看选项——把受的力数清楚。"}
-      ],
-      fallback: {hint:"提示级别 1：初速度朝哪？力的方向朝哪？两者什么关系？", next:"n1"}
-    },
-    n2: { p:"P1",
-      coach: ["小球带正电、电场竖直——它受哪几个力？这些力合起来是什么方向、什么性质（恒定还是变化）？"],
-      expect: "重力+电场力，都在竖直方向，合力恒定",
-      matchers: [
-        {re: /恒|不变|重力.*电场力|竖直/, next:"n3",
-         fb:"对：两个恒力都竖直，合起来还是恒力、还竖直。这个“恒”字是整道题的钥匙。"},
-        {re: /.+/, next:"n3",
-         fb:"再数一遍：一个跟质量有关的恒力，一个跟电荷与场强有关的恒力——都沿竖直线。"}
-      ],
-      fallback: {hint:"提示级别 1：重力竖直向下；正电荷受电场力沿场强方向——场强方向题目说了朝哪？", next:"n2"}
-    },
-    n3: { p:"P2",
-      coach: ["恒力 + 初速度垂直于力——这个组合你在必修二见过。它叫什么运动？处理它的第一板斧是什么？"],
-      expect: "（类）平抛运动；先正交分解",
-      matchers: [
-        {re: /平抛|类平抛/, next:"n4",
-         fb:"类平抛——名字对了。名字不重要，重要的是它给处理方式定了规矩：沿初速度方向和沿恒力方向正交分解，两个方向各自独立、互不掺和。"},
-        {re: /分解|水平.*竖直/, next:"n4",
-         fb:"分解方向选对了。这两个方向上各自是什么运动？一个匀速、一个匀加速——你把这句说完。"}
-      ],
-      fallback: {hint:"提示级别 2：想那个经典模型——恒力垂直初速度。它的学名三个字，第一个字是“平”。", next:"n3"}
-    },
-    n4: { p:"P3",
-      coach: ["现在用这把斧子去劈选项：水平方向的速度分量会不会变？竖直方向的速度怎么随时间涨？——各选项逐条判断，先把你最有把握的一条说结论。"],
-      expect: "水平分量不变；竖直分量均匀增大；据此判选项",
-      matchers: [
-        {re: /不变|匀速/, next:"n5",
-         fb:"水平分量不变、竖直分量匀加速——速率的变化全部来自竖直方向。能量也顺着这条线走：合外力竖直，做功全算在竖直位移头上。"},
-        {re: /.+/, next:"n5",
-         fb:"方向对，表述再收紧一点：哪个分量恒定、哪个分量线性增长？照这个说一遍，再看选项。"}
-      ],
-      fallback: {hint:"提示级别 1：先独立看水平方向——那个方向上有没有力？没有力速度分量会怎样？", next:"n4"}
-    },
-    n5: { p:"P4",
-      coach: ["最后一问：你当时选了 AB。现在拿“类平抛”的眼光回头看——当时的判断里，哪一条你是有把握的？哪一条其实是凭感觉蒙的？"],
-      expect: "区分有据判断与凭感觉判断",
-      matchers: [
-        {re: /蒙|感觉|没把握|不确定/, next:"__END__",
-         fb:"敢承认“那条是蒙的”——这一句比做对十道题值钱。凭感觉的那条，现在用分量分析重判一遍，这就是你以后选多选的规矩：每条都要有判定依据。"},
-        {re: /.+/, next:"__END__",
-         fb:"好。把你刚才重判的依据记下来——这就是这张卡的“什么时候用”。去收尾吧。"}
-      ],
-      fallback: {hint:"说实话就行，教练不会笑你。哪条是算出来的、哪条是感觉给你的？", next:"n5"}
-    }
-  }
-},
-
-// ---------- C · 数学14：等比数列多选 ----------
-C: {
-  stem: "已知等比数列 {aₙ} 满足 a₄ = 27，aₙ₊₁ = 2Sₙ + c（Sₙ 为前 n 项和，c 为常数），四个选项围绕公比、通项、以及充分必要条件设问（多选）。（完整题面与数字以你卷子原图为准。）",
-  nodes: {
-    n1: { p:"P1",
-      coach: ["先说题面：这道题给你的“原料”是什么形状的关系式？——aₙ₊₁ 和 Sₙ 挂在一起，这个形状你眼熟吗？"],
-      expect: "识别出这是“项与和”混合的递推关系",
-      matchers: [
-        {re: /S[nₙ]|前.*项和|和.*项/, next:"n2",
-         fb:"对，原料是“项”跟“前 n 项和”搅在一起的关系式。等比数列的原料本来是 aₙ₊₁ = q·aₙ——现在的形状不对，所以第一步先得把 Sₙ 消掉。"},
-        {re: /递推|关系/, next:"n2",
-         fb:"是递推关系，但比标准的“项推项”多了一层——多的那层叫什么？把它名字说出来。"}
-      ],
-      fallback: {hint:"提示级别 1：aₙ₊₁ 和什么量直接发生了关系？这个量在数列里通常用什么符号表示？", next:"n1"}
-    },
-    n2: { p:"P2",
-      coach: ["消 Sₙ 的老手法是什么？——想一想：跟 Sₙ 配套的、天然就存在的另一条式子是哪条？"],
-      expect: "写出 Sₙ₋₁ 与 aₙ₋₁ 的关系，两式相减",
-      matchers: [
-        {re: /相减|S[nₙ].*-.*1|Sₙ₋₁|n-1|n−1/, next:"n3",
-         fb:"就是它：把递推式对 n 和 n−1 各写一遍，两式相减，Sₙ 那一项直接对消——这叫“错位相减”的入门版。剩下的是 aₙ₊₁ 和 aₙ 的纯关系。"},
-        {re: /消|化简|降/, next:"n3",
-         fb:"思路对。具体动作：n 换成 n−1 再写一遍原式，然后两条式子做减法——Sₙ 消掉了，剩下的就是项与项的关系。"}
-      ],
-      fallback: {hint:"提示级别 2：把 aₙ₊₁ = 2Sₙ + c 里的 n 换成 n−1，写出第二条式子。两条摆在一起，做一次减法。", next:"n2"}
-    },
-    n3: { p:"P3",
-      coach: ["相减之后剩什么？现在离“等比”还差一步——公比是多少？还有一个坑：n = 1 时，你刚才那套操作还能用吗？为什么？"],
-      expect: "得出公比；并处理 n=1 边界",
-      matchers: [
-        {re: /n.*1|n=1|n = 1|首项|边界/, next:"n4",
-         fb:"你碰到那个坑了：n=1 时 Sₙ₋₁ 不存在，相减这一步对 n=1 失效——所以 a₂ 与 a₁ 的关系要单独用原式核一遍。边界就是这种地方：套路断掉的地方，单独验。"},
-        {re: /2|公比/, next:"n4",
-         fb:"公比出来了。但先别走——n=1 那一格你回看了吗？递推式在 n=1 时给出什么？跟你的公比一致吗？"}
-      ],
-      fallback: {hint:"提示级别 1：相减得到的式子对 n≥2 成立。n=1 的时候它还成立吗——把 n=1 代回原式试试。", next:"n3"}
-    },
-    n4: { p:"P3",
-      coach: ["数值你自己带原图算。现在看那两个充分必要条件的选项：你的判定方法是什么——先说判定方向，“X 是 A*” 推得出“Y”是什么命题方向？"],
-      expect: "明确“充分”与“必要”各指哪个推哪个",
-      matchers: [
-        {re: /充分.*必要|必要.*充分|推出|⇒|=>/, next:"n5",
-         fb:"方向抓对了：充分是“X⇒Y”，必要是“Y⇒X”。判“不成立”的那个方向，最有力的证据是什么——是举一个反例。"},
-        {re: /.+/, next:"n5",
-         fb:"先把两个词的方向说死：谁推谁是充分、谁推谁是必要？说清楚了再判。"}
-      ],
-      fallback: {hint:"提示级别 1：充分条件 = 前推后成立；必要条件 = 后推前成立。要推翻，找反例。", next:"n4"}
-    },
-    n5: { p:"P4",
-      coach: ["回看：这题你写 AB。复盘两件事——第一，“aₙ₊₁=2Sₙ+c”这种形状，你以后看到第一反应该是什么动作？第二，充分必要条件的判定，你给自己立一条什么规矩？"],
-      expect: "沉淀两个动作：“见 S 想相减” + “反例意识”",
-      matchers: [
-        {re: /相减|错位/, next:"__END__",
-         fb:"“见 S 就相减”——这个反射就是你今天挣到的模型卡。反例那条也记上：否定充分或必要，一个反例顶十个证明。"},
-        {re: /.+/, next:"__END__",
-         fb:"把你刚才的原话写进卡片就行。去收尾三步。"}
-      ],
-      fallback: {hint:"第一反射是什么动作？三个字，“______”。", next:"n5"}
-    }
-  }
-},
-
-// ---------- D · 数学15：A* 新定义 ----------
-D: {
-  stem: "题目定义了一种“ A* 序列”，给出其满足的条件，并围绕“某条件是序列为 A* 的充分/必要条件”设问。（完整定义与设问以你卷子原图为准。）",
-  nodes: {
-    n1: { p:"P1",
-      coach: ["新定义题，第一件事永远不是做题——是用你自己的话把定义讲一遍。A* 序列要满足什么条件，才算“是”A*？讲给我听，慢就慢，讲对为止。"],
-      expect: "用自己的话复述定义",
-      matchers: [
-        {re: /满足|条件|定义|性质/, next:"n2",
-         fb:"能复述，定义就进脑子了。新定义题全部分数都藏在这句话里——定义本身没吃透，后面全白干。"},
-        {re: /.+/, next:"n2",
-         fb:"先别管准不准，按你现在的理解说。哪个词卡住，就说明定义里哪个字没读透。"}
-      ],
-      fallback: {hint:"提示级别 1：回原图，把“ A* 序列”的定义那句抄下来，然后换掉数学符号、用中文大白话重说。", next:"n1"}
-    },
-    n2: { p:"P2",
-      coach: ["定义活了，下一步是“操作化”：随便编一个具体序列，带进定义里验证一遍——它是合格的 A* 还是归错堆的？你编一个试试。"],
-      expect: "构造一个具体序列实例并代入验证",
-      matchers: [
-        {re: /例子|试|代入|比如|1,*2|构造/, next:"n3",
-         fb:"动手了——这一步就叫“定义操作化”。你刚才验证的每个动作，就是这题真正的解题动作。"},
-        {re: /.+/, next:"n3",
-         fb:"编不出来？那就先用最简单的：全是同一个数的序列，行不行？带进去验证。"}
-      ],
-      fallback: {hint:"提示级别 2：写一个五项以内的具体序列（数字随便选），逐条核对定义条件，打勾打叉。", next:"n2"}
-    },
-    n3: { p:"P2",
-      coach: ["现在看充分必要的方向：题目要你判“某条件是 A* 的充分条件”——这是什么方向推什么？你的判定策略选哪条路：正面推，还是找反例？"],
-      expect: "明确推的方向 + 选择“证明”或“反例”路线",
-      matchers: [
-        {re: /反例/, next:"n4",
-         fb:"反例优先——聪明。判“不是充分”，一个反例就够；判“是充分”，才需要正面证明。你挑的武器对，方向对了吗？"},
-        {re: /证明|正面|推/, next:"n4",
-         fb:"正面推是重武器：要证“条件⇒A*”，每一步都得从定义出发。提醒你：要否定一个方向，其实有轻武器——是什么？"}
-      ],
-      fallback: {hint:"提示级别 1：否定“X⇒Y”，最有力的轻武器是什么？（三个字，含一个“例”字）", next:"n3"}
-    },
-    n4: { p:"P3",
-      coach: ["你当时“推了两步卡住”。现在按你的路线走——正面推的同学：这两步里，哪一步用到了定义的哪一条？反例路线的同学：你的反例要同时满足什么、又不满足什么？卡住的地方说给我。"],
-      expect: "定位卡点（哪个定义条目没接上 / 反例条件没凑齐）",
-      matchers: [
-        {re: /卡|不会|差|缺/, next:"n5",
-         fb:"卡点说清楚了——十有八九是定义里某一条还没翻译成“能算的式子”。新定义题的卡点几乎全在这个翻译环节。"},
-        {re: /.+/, next:"n5",
-         fb:"照你的进度继续。哪一步落不了地，就把定义里对应的条款重读一遍，把它变成等式或不等式再试。"}
-      ],
-      fallback: {hint:"提示级别 1：把卡住的那一步写出来——写出来的那一刻，你就能看见它缺的是定义里的哪一条。", next:"n4"}
-    },
-    n5: { p:"P4",
-      coach: ["收个总账：新定义题你给自己沉淀一条什么样的通用打法？——从“见到定义”到“下笔”，第一、第二、第三个动作各是什么？"],
-      expect: "沉淀新定义题的通用三步打法",
-      matchers: [
-        {re: /复述|读|翻译/, next:"__END__",
-         fb:["三步齐了：①先复述定义（换成自己的话）；②马上构造具体例子做操作化；③判充分必要走“反例优先”。这张卡不只是这道题的，是所有新定义题的。"]},
-        {re: /.+/, next:"__END__",
-         fb:"把你的原话写进卡里。这条打法以后每道新定义题都用得上——去收尾。"}
-      ],
-      fallback: {hint:"第一动作永远是：别急着做，先把定义讲成自己的话。然后呢？", next:"n5"}
-    }
-  }
+const JKEY = "biden_v3_journey";
+let J = { grade:"", score:"", weak:"", subj:"", done:false, picked:null };
+function persist(){ try{ localStorage.setItem(JKEY, JSON.stringify(J)); }catch(e){} }
+function loadJ(){
+  try{
+    const raw = localStorage.getItem(JKEY);
+    if(raw){ const o = JSON.parse(raw); J = Object.assign(J, o); }
+  }catch(e){}
 }
-};
+function go(view){ ["welcome","profile","upload","confirm","chat","cause","card","done","nightly","demo"]
+  .forEach(v=>document.getElementById("v-"+v).classList.toggle("hidden", v!==view));
+  window.scrollTo(0,0);
+}
 
-function startLesson(key){
-  S.cur = key;
-  const L = LESSONS[key];
-  const it = ISSUES.find(i=>i.key===key);
-  document.getElementById("qTitle").textContent = it.code + " · " + it.sub;
-  document.getElementById("qBody").textContent = L.stem;
-  document.getElementById("qNote").textContent = "题面数字以你卷子原图为准。教练只带方法与模型，不代算。";
+// ---------- 屏0 → 屏1 ----------
+function goProfile(){ go("profile"); }
+
+// ---------- 屏1 三问 ----------
+let grade="", subj="";
+function pickChip(el, which){ document.querySelectorAll("#gradeChips .chip").forEach(c=>c.classList.remove("on"));
+  el.classList.add("on"); grade = el.textContent.trim(); checkProfile(); }
+function pickChip2(el, which){ document.querySelectorAll("#subjChips .chip2").forEach(c=>c.classList.remove("on"));
+  el.classList.add("on"); subj = el.textContent.trim(); checkProfile(); }
+function checkProfile(){
+  const s = document.getElementById("pfScore");
+  const ok = grade !== "";
+  document.getElementById("pfBtn").disabled = !ok;
+}
+document.getElementById("pfScore").addEventListener("input", checkProfile);
+function goUpload(){
+  J.grade = grade; J.subj = subj;
+  J.score = document.getElementById("pfScore").value.trim();
+  J.weak  = document.getElementById("pfWeak").value.trim();
+  persist();
+  go("upload");
+}
+function backProfile(){ go("profile"); }
+
+// ---------- 屏2 传错题（演示：模拟拍照识别） ----------
+document.getElementById("upBox").addEventListener("click", ()=>{
+  document.getElementById("upBox").classList.add("hidden");
+  document.getElementById("scanning").classList.remove("hidden");
+  setTimeout(()=>{ renderConfirm(); go("confirm"); }, 1400);
+});
+function backUpload(){ go("upload"); }
+
+// ---------- 屏3 题面确认 ----------
+let pickedQ = "A";
+function renderConfirm(){
+  const list = document.getElementById("qpickList");
+  list.innerHTML = Object.keys(KB.questions).map(k=>{
+    const q = KB.questions[k];
+    return `<div class="qpick ${k===pickedQ?"on":""}" data-k="${k}" onclick="pickQ('${k}')">
+      <span class="qt">${q.code} · ${q.sub}</span></div>`;
+  }).join("");
+  renderStem();
+}
+function pickQ(k){ pickedQ = k;
+  document.querySelectorAll(".qpick").forEach(el=>el.classList.toggle("on", el.dataset.k===k));
+  renderStem();
+}
+function renderStem(){
+  const q = KB.questions[pickedQ];
+  document.getElementById("stemCard").innerHTML =
+    `<span class="tag">${q.chapter}</span><div>${q.stem}</div>`;
+}
+
+// ---------- 屏5 错因 ----------
+let selCause = null;
+function renderCauses(){
+  const box = document.getElementById("causeList");
+  box.innerHTML = KB.causes.map((c,i)=>{
+    return `<button class="causebtn" style="border-left:5px solid var(${c.c})" data-i="${i}" onclick="pickCause(${i},this)">${c.n}<small>${c.why}</small></button>`;
+  }).join("");
+}
+function pickCause(i, el){
+  selCause = KB.causes[i].n;
+  document.querySelectorAll(".causebtn").forEach(b=>{
+    const on = +b.dataset.i === i;
+    b.classList.toggle("on", on);
+    if(on){ b.style.background = "var(" + KB.causes[i].c + ")"; b.style.borderColor = "var(" + KB.causes[i].c + ")"; }
+    else { b.style.background = "#fff"; b.style.borderColor = "var(--line)"; }
+  });
+  document.getElementById("causeBtn").disabled = false;
+}
+function goCard(){ go("card"); }
+
+// ---------- 屏6 记一句话 ----------
+function saveCard(){
+  const t = document.getElementById("cardTitle").value.trim();
+  const b = document.getElementById("cardBody").value.trim();
+  if(!t || !b){ toast("两行都写给自己。就一句大白话，不用完整。","warn"); return; }
+  J.done = true; J.picked = pickedQ;
+  persist();
+  go("done");
+}
+
+// ---------- 屏7 收工 → 屏8 今晚 ----------
+function goNightly(){ renderNightly(); go("nightly"); }
+function renderNightly(){
+  const q = KB.questions[J.picked || "A"];
+  const when = document.getElementById("cardWhen").value.trim() || "明天";
+  const card = document.getElementById("cardTitle").value.trim() || "你记下的那句话";
+  document.getElementById("nightSteps").innerHTML = `
+    <div class="nstep"><div class="num">1</div><div class="body">
+      <div class="bt">复习</div><div class="bs">还没有到期的。${when}会提醒你复习「${card}」</div></div></div>
+    <div class="nstep"><div class="num">2</div><div class="body">
+      <div class="bt">弄懂一道新错题</div><div class="bs">有题就拍进来，没题今晚就到这里</div></div>
+      <button class="btn small go" onclick="goUpload()">去做</button></div>
+    <div class="nstep"><div class="num">3</div><div class="body">
+      <div class="bt">记一句话</div><div class="bs">弄懂了才亮起。重测提醒：${q.variation}</div></div></div>`;
+}
+function resetJourney(){ try{ localStorage.removeItem(JKEY); }catch(e){}; J = { done:false, picked:null };
+  go("welcome"); toast("已清空。重新走一遍第一天。"); }
+
+// ---------- 演示模式 ----------
+function renderDemo(){
+  const scores = [72,75,78,76,82,80], avg = 74, weeks = ["W1","W2","W3","W4","W5","W6"];
+  document.getElementById("demoChart").innerHTML = scores.map((s,i)=>{
+    const h = Math.round(s/100*140);
+    return `<div class="bar"><div class="col" style="height:${h}px"></div><div class="lbl">${weeks[i]}<br>${s}</div></div>`;
+  }).join("") + `<div class="bar"><div class="col avg"></div><div class="lbl">班均<br>${avg}</div></div>`;
+  document.getElementById("demoWeek").innerHTML =
+    "六次闭卷全部无 AI：<b>72 → 82</b>，班均 74。曲线从没掉下去过。这就是产品跑起来的样子。";
+}
+
+// ---------- 启动 ----------
+function boot(){
+  loadJ();
+  const isDemo = /[?&]demo/.test(location.search);
+  if(isDemo){ renderDemo(); go("demo"); return; }
+  if(J.done){ renderNightly(); go("nightly"); return; }
+  go("welcome");
+}
+</script>
+
+<script>
+// ============================================================
+// 教练对话引擎（知识库驱动）+ 语音输入
+// ============================================================
+let L = null; // 当前题
+function startCoach(){
+  L = KB.questions[pickedQ];
+  document.getElementById("qTitle").textContent = L.code + " · " + L.sub;
   go("chat");
   renderPolya("P1");
   document.getElementById("msgs").innerHTML = "";
-  // 开场规则声明（每次进对话先说清规矩，再开始第一问）
   coachSay([
     "开工前说三条规矩，说完就不再重复：",
     "一、我只提问，不给答案。你问到最后一刻，我也不会松口。",
@@ -709,7 +735,7 @@ function startLesson(key){
   enterNode("n1");
 }
 function renderPolya(cur){
-  const steps = [["P1","理解题目"],["P2","拟计划"],["P3","执行"],["P4","回看"]];
+  const steps = [["P1","理解题目"],["P2","找思路"],["P3","动手做"],["P4","回头看"]];
   document.getElementById("polyaBar").innerHTML = steps.map(s=>{
     const cls = s[0]===cur ? "cur" : "";
     return `<div class="step ${cls}">${s[1]}</div>`;
@@ -720,7 +746,8 @@ function coachSay(lines){
   lines.forEach(t=>{
     const d = document.createElement("div");
     d.className = "msg coach";
-    d.innerHTML = `<div class="lbl">教练</div>${t}`;
+    const lbl = document.createElement("div"); lbl.className = "lbl"; lbl.textContent = "教练";
+    d.appendChild(lbl); d.appendChild(document.createTextNode(t));
     box.appendChild(d);
   });
   box.scrollTop = box.scrollHeight;
@@ -742,134 +769,100 @@ function stuSay(t){
   box.scrollTop = box.scrollHeight;
 }
 function enterNode(id){
-  const L = LESSONS[S.cur];
   const n = L.nodes[id];
   renderPolya(n.p || "P1");
   coachSay(n.coach);
   L.pos = id;
-  document.getElementById("expectLine").innerHTML = "现在等你： <b>" + n.expect + "</b>";
-  document.getElementById("stuInput").value = "";
+  document.getElementById("expectLine").innerHTML = "现在等你：<b>" + n.expect + "</b>";
+  const inp = document.getElementById("stuInput");
+  inp.value = ""; inp.focus();
 }
 // 红线检测：要答案/要代做 → 拦截，不推进
-const RED = /直接给|给我答案|答案是什么|告诉我答案|帮我做|帮我算|怎么算啊直接|把过程写出来|替我写/;
+const RED = /直接给|给我答案|答案是什么|告诉我答案|帮我做|帮我算|怎么算啊直接|把过程写出来|替我写|你来做/;
 function send(){
   const inp = document.getElementById("stuInput");
   const t = inp.value.trim();
   if(!t) return;
   stuSay(t);
   inp.value = "";
-  const L = LESSONS[S.cur];
   if(RED.test(t)){
-    S.violations++;
-    persist();
-    sysSay("<b>教练拦住了你。</b> 我不给答案，也不代算——这条线不能碰。你刚才这句换成：把你会的那一步先写出来，卡在哪一步，告诉我在哪卡住的。");
+    sysSay("<b>教练拦住了你。</b> 我不给答案，也不代算——这条线不能碰。你刚才这句换成：把你会的那一步先写出来，然后告诉我，你卡在哪一步。");
     return;
   }
   const n = L.nodes[L.pos];
-  // 逐个匹配器
-  for(const m of n.matchers || []){
+  for(const m of (n.matchers || [])){
     if(m.re.test(t)){
       if(m.fb) coachSay(Array.isArray(m.fb)?m.fb:[m.fb]);
       if(m.next === "__END__"){
-        coachSay(["（收尾）三步走：①五个错因里你自己挑一个；②亲手写一张卡；③存进两库。这就去。"]);
-        setTimeout(()=>openRecap(S.cur), 500);
+        coachSay(["收尾两步：①“错在哪儿”你自己挑一个；②用你自己的话记下一句。这就去。"]);
+        setTimeout(()=>{ renderCauses(); go("cause"); }, 600);
       } else {
-        setTimeout(()=>enterNode(m.next), m.fb?400:0);
+        setTimeout(()=>enterNode(m.next), m.fb?500:0);
       }
       return;
     }
   }
-  // fallback：没匹配上
   if(n.fallback){
     coachSay([n.fallback.hint]);
-    setTimeout(()=>enterNode(n.fallback.next), 400);
+    setTimeout(()=>enterNode(n.fallback.next), 500);
   } else {
     coachSay(["先不管说得对不对——把你脑子里的第一反应直接写出来，一句就行。"]);
   }
 }
-// 回车发送
 document.getElementById("stuInput").addEventListener("keydown", e=>{
   if(e.key==="Enter" && !e.shiftKey){ e.preventDefault(); send(); }
 });
-</script>
 
-<script>
-// ============================================================
-// 复盘收尾 + 卡片保存 + 初始化
-// ============================================================
-const CAUSES = [
-  {n:"①", d:"概念不清", why:"概念/定律本身没吃透", c:"--c1"},
-  {n:"②", d:"模型选错", why:"该用的模型用错了", c:"--c2"},
-  {n:"③", d:"策略缺失", why:"没有解题路线，无从下手", c:"--c3"},
-  {n:"④", d:"执行失误", why:"路线对，算错/看错", c:"--c4"},
-  {n:"⑤", d:"审题偏差", why:"条件没看到、题意曲解", c:"--c5"}
-];
-let selCause = null;
-function openRecap(key){
-  S.cur = key;
-  const it = ISSUES.find(i=>i.key===key);
-  document.getElementById("recapTitle").textContent = it.code + " · " + it.sub;
-  selCause = null;
-  const g = document.getElementById("causeGrid");
-  g.innerHTML = CAUSES.map((c,i)=>
-    `<div class="cause" style="border-top:4px solid var(${c.c})" onclick="pickCause(${i}, this)">
-      <div class="n">${c.n}</div><div class="d">${c.d}</div><div class="why">${c.why}</div>
-    </div>`).join("");
-  go("recap");
-}
-function pickCause(i, el){
-  selCause = CAUSES[i].d;
-  document.querySelectorAll(".cause").forEach(e=>e.classList.remove("sel"));
-  el.classList.add("sel");
-}
-function saveCard(){
-  if(!selCause){ toast("先在五个错因里选一个——你自己归类，这是复盘的一部分。", "warn"); return; }
-  const title = document.getElementById("cardTitle").value.trim();
-  const trig = document.getElementById("cardTrigger").value.trim();
-  const body = document.getElementById("cardBody").value.trim();
-  if(!title || !trig || !body){
-    toast("三个框都要自己填。卡片铁律：教练不代写，少一个字都不算你的卡。", "warn");
-    return;
-  }
-  S.issuesDone[S.cur] = selCause;
-  S.libE = S.libE + 1;      // 复盘完成，错题库转入已处理
-  S.libC = S.libC + 1;      // 新卡入概念/模型库（此处简化为概念卡）
-  // 仪式第 3 步自动完成：卡写了
-  const st = S.ritual || [false,false,false,false]; st[2] = true; S.ritual = st;
-  persist();
-  renderHome();
-  go("home");
-  toast("已存入两库 · <b>"+title+"</b>。按 1·2·4·8 天进复习清单。错因你定的："+selCause, "ok", 4200);
-}
-function skipCard(){
-  if(!selCause){ toast("错因归类这一步不能跳——就点一下，选一个。", "warn"); return; }
-  S.issuesDone[S.cur] = selCause;
-  persist(); renderHome(); go("home");
-  toast("只归了错因，没写卡。这道题下次还会在复习清单里等你。", "ok", 3200);
-}
-// ================= 页面内 toast =================
+// ---------- 语音输入（Web Speech API，https 下可用） ----------
+(function(){
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const mic = document.getElementById("micBtn");
+  const inp = document.getElementById("stuInput");
+  if(!SR){ mic.classList.add("hidden"); return; }
+  let rec = null, recording = false;
+  mic.addEventListener("click", ()=>{
+    if(recording){ rec.stop(); return; }
+    try{
+      rec = new SR();
+      rec.lang = "zh-CN";
+      rec.interimResults = true;
+      rec.continuous = false;
+      rec.onresult = (ev)=>{
+        let final = "", interim = "";
+        for(let i=0;i<ev.results.length;i++){
+          const r = ev.results[i];
+          if(r.isFinal) final += r[0].transcript; else interim += r[0].transcript;
+        }
+        inp.value = (final || interim).trim();
+      };
+      rec.onend = ()=>{ recording = false; mic.classList.remove("rec"); };
+      rec.onerror = (ev)=>{
+        recording = false; mic.classList.remove("rec");
+        if(ev.error === "not-allowed" || ev.error === "service-not-allowed"){
+          toast("没拿到麦克风。点地址栏的锁允许麦克风，或者直接打字。","warn");
+        } else if(ev.error !== "aborted"){
+          toast("语音没听清，再来一次，或者直接打字。","warn");
+        }
+      };
+      rec.start();
+      recording = true;
+      mic.classList.add("rec");
+      toast("在听，说完自动停下。");
+    }catch(e){ toast("这个环境开不了麦克风，用打字吧。","warn"); }
+  });
+})();
+
+// ---------- toast ----------
 let _toastTimer = null;
 function toast(msg, type, dur){
   const t = document.getElementById("toast");
-  t.innerHTML = msg;
-  t.style.background = (type==="warn") ? "#8A4A2B" : "var(--ink)";
-  t.classList.add("show");
+  t.textContent = msg;
+  t.className = type==="warn" ? "show warn" : "show";
   clearTimeout(_toastTimer);
-  _toastTimer = setTimeout(()=>t.classList.remove("show"), dur||2600);
+  _toastTimer = setTimeout(()=>t.className = "", dur||2600);
 }
-// ================= 新手引导 =================
-function closeOb(){
-  document.getElementById("ob").style.display = "none";
-  try{ localStorage.setItem("biden_ob", "1"); }catch(e){}
-}
-function initOb(){
-  let seen = false;
-  try{ seen = !!localStorage.getItem("biden_ob"); }catch(e){}
-  if(!seen) document.getElementById("ob").style.display = "flex";
-}
-renderHome();
-go("home");
-initOb();
+
+boot();
 </script>
 </body>
 </html>
