@@ -170,18 +170,20 @@ textarea{ resize:vertical; min-height:88px; }
       </div>
     </div>
     <div class="qrow">
-      <div class="ql">最近一次考试，多少分？</div>
-      <input type="text" id="pfScore" placeholder="比如：数学 82。没有就写个大概感觉">
-    </div>
-    <div class="qrow">
-      <div class="ql">现在最没底的是哪科哪块？</div>
+      <div class="ql">现在最没底的是哪一科？</div>
       <div class="chips" id="subjChips">
         <div class="chip2" onclick="pickChip2(this,'subj')">数学</div>
         <div class="chip2" onclick="pickChip2(this,'subj')">物理</div>
-        <div class="chip2" onclick="pickChip2(this,'subj')">化学</div>
-        <div class="chip2" onclick="pickChip2(this,'subj')">生物</div>
       </div>
-      <input type="text" id="pfWeak" placeholder="哪一章最没底？比如：电场、数列（可不填）" style="margin-top:10px">
+      <div class="qhint">目前陪你练这两科，其他科在路上</div>
+    </div>
+    <div class="qrow">
+      <div class="ql" id="scoreLabel">最近一次考试，哪科多少分？</div>
+      <input type="text" id="pfScore" placeholder="比如：数学 82。没有就写个大概感觉">
+    </div>
+    <div class="qrow">
+      <div class="ql">那一科，哪一章最没底？</div>
+      <input type="text" id="pfWeak" placeholder="比如：电场、数列（可不填）">
     </div>
     <button class="btn" id="pfBtn" onclick="goUpload()" disabled>填好了</button>
   </main>
@@ -601,7 +603,9 @@ let grade="", subj="";
 function pickChip(el, which){ document.querySelectorAll("#gradeChips .chip").forEach(c=>c.classList.remove("on"));
   el.classList.add("on"); grade = el.textContent.trim(); checkProfile(); }
 function pickChip2(el, which){ document.querySelectorAll("#subjChips .chip2").forEach(c=>c.classList.remove("on"));
-  el.classList.add("on"); subj = el.textContent.trim(); checkProfile(); }
+  el.classList.add("on"); subj = el.textContent.trim();
+  document.getElementById("scoreLabel").textContent = "那「"+subj+"」最近一次考了多少分？";
+  checkProfile(); }
 function checkProfile(){
   const s = document.getElementById("pfScore");
   const ok = grade !== "";
