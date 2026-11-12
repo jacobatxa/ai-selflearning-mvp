@@ -498,7 +498,7 @@ const KB = {
           fallback:{hint:"相减得到的式子对 n≥2 成立。n=1 的时候它还成立吗——把 n=1 代回原式试试。", next:"n3"}
         },
         n4: { p:"P3",
-          coach:["数值你自己带原图算。现在看那两个充分必要条件的选项：你的判定方法是什么——先说判定方向，“X 是 A* 的充分条件”是哪个方向推哪个？"],
+          coach:["数值你自己带原图算。现在看那两个充分必要条件的选项：你的判定方法是什么——先说判定方向，“X 是 Y 的充分条件”是哪个方向推哪个？"],
           expect:"明确“充分”与“必要”各指哪个推哪个",
           matchers:[
             {re:/充分.{0,4}必要|必要.{0,4}充分|推出|⇒|=>/, next:"n5", fb:"方向抓对了：充分是“X⇒Y”，必要是“Y⇒X”。判“不成立”的那个方向，最有力的证据是什么——是举一个反例。"},
@@ -731,10 +731,8 @@ function startCoach(){
   renderPolya("P1");
   document.getElementById("msgs").innerHTML = "";
   coachSay([
-    "开工前说三条规矩，说完就不再重复：",
-    "一、我只提问，不给答案。你问到最后一刻，我也不会松口。",
-    "二、卡住了直接写“我不会”或“卡在这一步”——这不是丢人，是我调整台阶的信号。",
-    "三、想直接要答案的念头出现时，自己先按下——那是这道题最有价值的时刻。"
+    "开工前只说一遍：我只问，不给答案。卡住就说“我不会”，我换个问法。",
+    "想把答案直接要过去的念头冒出来时，停一秒——那一刻你最该自己动手。"
   ]);
   enterNode("n1");
 }
@@ -777,7 +775,14 @@ function enterNode(id){
   renderPolya(n.p || "P1");
   coachSay(n.coach);
   L.pos = id;
-  document.getElementById("expectLine").innerHTML = "现在等你：<b>" + n.expect + "</b>";
+  // 底部提示 = 当前步骤的开口句式（教学生怎么开口，绝不泄露答案）
+  const SENTENCE = {
+    "P1":"可以这样开口：“这题在问___，给了我___。”",
+    "P2":"可以这样开口：“这是___模型，我看出来的信号是___。”",
+    "P3":"可以这样开口：“第一步___，依据是___。”",
+    "P4":"收尾过一遍：量级、单位、极端情况。"
+  };
+  document.getElementById("expectLine").innerHTML = SENTENCE[n.p] || "轮到你了。";
   const inp = document.getElementById("stuInput");
   inp.value = ""; inp.focus();
 }
